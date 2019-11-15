@@ -1,7 +1,6 @@
 .float maxitems;
 .float in_gasmask;
 .float dropped;
-
 float inventory;
 .float cursor_x;
 .float cursor_y;

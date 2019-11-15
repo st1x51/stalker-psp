@@ -19,12 +19,6 @@ void() GetSinglePlayerParameters =
 	if(cvar("saved1") == 0)
 		readparms = fopen ("data/sp_newparams.bin", FILE_READ);
 
-/*
-	if (world.model == "maps/start.bsp") // take away all stuff on starting new episode
-		readparms = fopen ("data/sp_newparams.bin", FILE_READ);
-	else
-		readparms = fopen ("data/sp_params.bin", FILE_READ);
- */
 	if (readparms < 0)//if file not found
 	{
 		objerror("Error: sp_parms.bin not found!\n");//error
@@ -202,12 +196,7 @@ void() readinventory =
 		readparms = fopen ("data/inventory_start.bin", FILE_READ);
 		cvar_set("saved1","1");
 	}
-	/*
-	if (world.model == "maps/start.bsp") // take away all stuff on starting new episode
-		readparms = fopen ("data/inventory_start.bin", FILE_READ);
-	else
-		readparms = fopen ("data/inventory.bin", FILE_READ);
-	*/
+	
 	if (readparms < 0)//if file not found
 	{
 		objerror("Error: inventory file not found!\n");//error
@@ -598,11 +587,7 @@ local vector 	new_vel;
 void() PlayerPreThink = 
 {
 	if(self.incar)
-	{
-		//self.velocity = '0 0 0';
-		//self.angles_x = 0;
-		//self.angles_y = 0;
-		//self.fixangle = 1;	
+	{	
 		if(self.carspeed)
 			cvar_set("cl_yawspeed","30");
 		if(self.carspeed >=150)
@@ -686,13 +671,6 @@ void()detector=
 		self.pl_state = STAY;
 	if(self.velocity && self.state == RUNNING)
 		self.pl_state = RUN;
-	 /*
-	 if(inventory)
-	 {
-		 self.velocity = '0 0 0';
-		 return;
-	 }
-	 */
 	WeaponFrame ();
    if (self.sprint_time > time)
    {
@@ -849,6 +827,8 @@ void() PutClientInServer =
 	localcmd("exec gameplay.cfg\n");
 	cvar_set("in_analog_disable","0");
 	cvar_set("chase_active","0");
+	cvar_set("scr_nohud","0");
+	cvar_set("r_drawviewmodel","1"); 
 	local float k;
 	for(k=1;k<MAX_ITEMS;k++)
 	{
