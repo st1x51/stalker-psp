@@ -1,0 +1,30 @@
+#output "../progs.dat"
+//#pragma autoproto
+#includelist 
+defs.c                                          // Definitions
+stalkerdefs.c
+weather.c
+main.c                                            // Main subroutines
+damage.c
+ai.c
+player.c
+triggers.c
+sound.c
+weapons.c
+client.c                                          // Client subroutines
+lights.c
+inventory.c
+impulse.c
+subs.c
+bmodels.c
+items.c
+tutor.c
+dog.c
+//actors
+actor_tolik.c
+actor_green.c
+actor_sidor.c
+door.c
+#endlist
+
+

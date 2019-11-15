@@ -1,0 +1,17 @@
+// d - dirt
+// l - ladder
+// m - metal
+// s - slosh
+// t - tile
+// w - wood
+// other
+
+D DEV_GRASS1
+M DEV_METAL1
+T DEV_TILE1
+W DEV_WOOD1
+
+T DEV_128
+T DEV_64
+T DEV2_128
+T DEV2_64
