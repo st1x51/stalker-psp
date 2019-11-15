@@ -24,7 +24,7 @@ void() CheckImpulses =
 			self.sprint_time = time;
 			self.sprinting = FALSE;    
 			self.state = IDLE;	
-			self.pl_state = 2;			
+			self.pl_state = STAY;			
 			UpdateWeapon();
 		}
 		if (!(self.sprinting))
@@ -34,7 +34,7 @@ void() CheckImpulses =
 				self.sprint_time = time + self.stamina; //4
 				self.sprinting = TRUE;
 				self.state = RUNNING;
-				self.pl_state = 3;
+				self.pl_state = RUN;
 				UpdateWeapon();
 			 }
 		}
