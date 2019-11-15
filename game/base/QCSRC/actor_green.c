@@ -6,10 +6,7 @@ enum
 	GUITAR,
 	SITTING
 };
-void()green_touch=
-{
-	
-}
+
 void()play_guitar=
 {
 	if(self.frame == 149)
