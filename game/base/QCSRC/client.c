@@ -91,69 +91,53 @@ void() writefirst =
 	}
 
 	writethis = ftos(other.health);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.stamina);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.maxitems);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(weather);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(nightdaychanger.daynightlightlevel);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(nightdaychanger.lightchange);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	//weapons stuff
 	writethis = ftos(other.slotwep);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.weapon);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.primaryweapon);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.secondaryweapon);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	//pm
 	writethis = ftos(other.pm_clip);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.ammo_pm);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.pm_fired);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	//tozbm
 	writethis = ftos(other.tozbm_clip);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.ammo_tozbm);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	writethis = ftos(other.tozbm_fired);
-	fputs (writeparms, writethis);
-	fputs (writeparms, "\n");
+	fputs (writeparms, writethis,"\n");
 	
 	fclose (writeparms);
 	bprint("Saving Parameters \n");
