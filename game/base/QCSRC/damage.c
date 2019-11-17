@@ -251,7 +251,6 @@ void(float damage, vector dir) TraceAttack=
 		WriteCoord (MSG_BROADCAST, org_z);
 		WriteShort (MSG_BROADCAST, etoi(trace_ent));
 		addparticle(p_smoke,org,1,2,0.8,0,self.origin);
-		//void(float type,vector org,float count,float size,float time,float color,vector dir)addparticle = #5;
 	}
 };
 void(float cShots,vector vecSrc,vector vecDirShooting,vector vecSpread,float flDistance,float iDamage)FireBullets=

@@ -57,26 +57,6 @@ void() KnifeAttack =
 	traceline (source, source + v_forward*64, FALSE, self);
 	
 	org = trace_endpos - v_forward*4;
-
-	float r = random();
-	/*
-	if (trace_ent == targ)
-	{
-		if (r < 0.5)
-			sound (self, CHAN_WEAPON, "weapons/Wrench/Wrench_hit1.wav", 1, ATTN_NORM);
-		else
-			sound (self, CHAN_WEAPON, "weapons/Wrench/Wrench_hit2.wav", 1, ATTN_NORM);
-	}
-	else
-	{
-		if (r < 0.35)
-			sound (self, CHAN_WEAPON, "weapons/Wrench/Wrench_hitbod1.wav", 1, ATTN_NORM);
-		if (r < 0.65)
-			sound (self, CHAN_WEAPON, "weapons/Wrench/Wrench_hitbod1.wav", 1, ATTN_NORM);
-		else
-			sound (self, CHAN_WEAPON, "weapons/Wrench/Wrench_hitbod1.wav", 1, ATTN_NORM);
-	}
-	*/
 	if (trace_ent.takedamage)
 	{			
 		T_Damage (trace_ent, self, self, 25);
@@ -140,10 +120,10 @@ void()UpdateWeapon=
 			self.sequence = 3; //running anim
 			self.weaponframe = 0;	
 		}
-		MaxSpreadX = 5;
-		MaxSpreadY = 5;
-		SpreadX = 2;
-		SpreadY = 2;
+		MaxSpreadX = 8;
+		MaxSpreadY = 15;
+		SpreadX = 4;
+		SpreadY = 5;
 		self.currentammo = self.pm_clip;
 		self.ammo_shells = self.ammo_pm;
 	}
@@ -319,9 +299,6 @@ void()TozBMReload=
 		self.state = 0;
 		return;
 	}
-
-	//if(self.weaponframe  == 1)
-	//	sound (self, CHAN_AUTO, "weapons/pm/pm_reload.wav", 1, ATTN_NORM);		
 	
 	self.weaponframe += 1;
 	self.think = TozBMReload;
@@ -476,6 +453,7 @@ void()tozbm_attack =
 }
 void()WeaponAttack=
 {
+	makevectors(self.v_angle);
 	self.show_hostile = time + 1;		// wake up other monsters
 	if(self.weapon == WEP_KNIFE)
 	{

@@ -1,4 +1,4 @@
-.float alifestate;
+﻿.float alifestate;
 enum
 {
 	JOKE,
@@ -204,7 +204,6 @@ void()actor_green=
 	setorigin(self,self.origin);
 	self.movetype = MOVETYPE_STEP;
 	self.solid = SOLID_BBOX;
-	self.use = green_touch;
 	self.useflags = self.useflags | PL_SHORTUSE;
 	self.classname = "actor_green";
 	setsize (self, '-16 -16 0', '16 16 32');
