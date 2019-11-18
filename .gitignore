@@ -1,2 +1,6 @@
 
 game/base/progs.lno
+game/base/config.cfg
+game/base/data/inventory.bin
+game/base/data/sp_params.bin
+*.gip
