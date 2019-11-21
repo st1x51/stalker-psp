@@ -1016,7 +1016,6 @@ byte *StringToRGB (char *s)
 	return rgb;
 }
 //=============================================================================
-#ifdef NAA
 //font.c : font.raw
 //	bin2c font.raw font.c font
 //font.c
@@ -1024,8 +1023,8 @@ extern"C"
 {
  #include "font.c"
 }
-,.,.,
-static int fontwidthtab[128] =
+
+static int fontwidthtab[256] =
 {
 	10, 10, 10, 10,
 	10, 10, 10, 10,
@@ -1065,10 +1064,50 @@ static int fontwidthtab[128] =
 	 8,  8,  8,  8, // p q r s
 	 8,  8,  8, 12, // t u v w
 	 8,  8,  8, 10, // x y z {
-	 8, 10,  8, 12  // | } ~
+	 8, 10,  8, 12,  // | } ~
+	 
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+	10, 10, 10, 10,
+
+	10,  6,  8, 10, // 
+	10, 10, 10,  6, //
+	10, 10, 10, 10, // 
+	6, 10,  6, 10, // 
+
+	10, 10, 10, 10, //
+	10, 10, 10, 10, // 
+	6, 10,  6,  6, // ё 
+	10, 10, 10, 10, // 
+
+	10, 10, 10, 8, // А Б В Г
+	10, 10, 12, 10, // Д Е Ж З
+	10, 10, 10, 10, // И Й К Л
+	12, 10, 10, 10, // М Н О П
+
+	10, 10, 10, 10, // Р С Т У
+	12, 10, 10, 10, // Ф Х Ц Ч
+	12, 12, 10, 10, // Ш Щ Ъ Ы
+	10, 10, 12, 10, // Ь Э Ю Я 
+
+	8,  8,  8,  8, // а б в г
+	8,  8,  10,  8,  // д е ж з
+	8,  8,  8,  8, // и й к л
+	10,  8,  8,  8, // м н о п
+
+	8,  8,  5, 8, // р с т у
+	8,  8,  8, 6, // ф х ц ч
+	12, 14,  6, 10, // ш щ ъ ы
+	6,  8,  10, 8  // ь э ю я 
 };
 
-void Draw_FrontText(const char* text, int x, int y, unsigned int color, int fw) //Crow_bar
+void Draw_FrontText(char* text, int x, int y, unsigned int color, int fw) //Crow_bar
 {
 	int len = (int)strlen(text);
 
@@ -1077,9 +1116,9 @@ void Draw_FrontText(const char* text, int x, int y, unsigned int color, int fw) 
 		return;
 	}
 
-	// Set the texture mode.
+	// Set the texture mode. 
 	sceGuTexMode(GU_PSM_8888, 0, 0, 0);
-	sceGuTexImage(0, 256, 128, 256, font);
+	sceGuTexImage(0, 256, 256, 256, font);
     sceGuTexFilter(GU_NEAREST, GU_NEAREST);
 
 	sceGuShadeModel(GU_SMOOTH);
@@ -1100,15 +1139,16 @@ void Draw_FrontText(const char* text, int x, int y, unsigned int color, int fw) 
 	for(i = 0; i < len; i++)
 	{
 		unsigned char c = (unsigned char)text[i];
+		
 		if(c < 32)
 		{
 			c = 0;
 		}
-		else if(c >= 128)
-		{
-			c = 0;
-		}
-
+		//else if(c >= 128)
+		//{
+		//	c = 0;
+		//}
+		
 		int tx = (c & 0x0F) << 4;
 		int ty = (c & 0xF0);
 
@@ -1138,7 +1178,7 @@ void Draw_FrontText(const char* text, int x, int y, unsigned int color, int fw) 
 	sceGuDepthMask(GU_FALSE);
 	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
 }
-
+/*
 void Draw_FrontTest (void)
 {
    	Draw_FrontText("red",   0,  0, 0xFF0000FF, 0);
@@ -1166,7 +1206,7 @@ void Draw_FrontTest (void)
 
 	Draw_FrontText("Hello World from pspdev", 0, 224, c, 0);
 }
-#endif
+*/
 //=============================================================================
 
 /*

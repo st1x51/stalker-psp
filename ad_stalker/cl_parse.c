@@ -139,7 +139,8 @@ void showstring_drawall (void)
 
 	for (i=0 ; i<SHOWSTRING_MAXLABELS ; i++)
 		if (showstring[i].isactive)
-			Draw_String_Rus(showstring[i].x, showstring[i].y,showstring[i].stringtoshow);
+			 	Draw_FrontText(showstring[i].stringtoshow,showstring[i].x,showstring[i].y, 0xFFFFFFFF, 0);
+			//Draw_String_Rus(showstring[i].x, showstring[i].y,showstring[i].stringtoshow);
 }
 void showstring_decodehide (void)
 {
