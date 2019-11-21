@@ -20,6 +20,7 @@ bmodels.c
 items.c
 tutor.c
 dog.c
+dialogs.c
 //actors
 actor_tolik.c
 actor_green.c

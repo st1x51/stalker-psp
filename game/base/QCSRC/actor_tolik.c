@@ -20,24 +20,12 @@ void()HelpSound=
 		e = e.chain;
 	}
 }
-void()tolyan_dead =
-{
-	if(self.frame == 59)
-	{
-		self.frame = 0;
-		HelpSound();
-	}
-	self.frame +=1;
-	self.think = tolyan_dead;
-	self.nextthink = time + 0.1;
-}
-
 void()tolyan_use=
 {
 	if(self.health <= 10)
 	{
-		if(RemoveItem("medkit"))
-		{
+		//if(RemoveItem("medkit"))
+		//{
 			self.health = 100;
 			self.sequence = 0;
 			self.frame = 0;
@@ -52,9 +40,126 @@ void()tolyan_use=
 			bot_face();
 			sound (self, CHAN_WEAPON, "tolik/tolik_thanks.wav", 1, ATTN_NORM);
 			self.pausetime = time + getsoundlen("tolik/tolik_thanks.wav");
-		}
+	//	}
 	}
 }
+void()tolyan_dead =
+{
+	if(self.frame == 59)
+	{
+		self.frame = 0;
+		HelpSound();
+	}
+	self.frame +=1;
+	self.think = tolyan_dead;
+	self.nextthink = time + 0.1;
+}
+
+void()dialog_choice_tolyan=
+{
+	entity oldent;
+	entity object;
+	object = find(world,classname,"tolyan");
+
+	if(choice == 1 && choice_complite[1] != 1)
+	{
+		if(question == 1)
+		{
+			clear_text();
+			RemoveItem("medkit");
+			oldent = self;
+			self = object;
+			tolyan_use();
+			self = oldent;
+			answer3 = "Спасибо";
+			question1 = "Да не за что";
+			question2 = "";
+		    ShowString("s3",answer3,120,nextchoice_y,8);
+			nextchoice_y += 16;
+			number_choices = 1;
+			self.impulse = 23;
+		}
+		if(question == 2)
+		{
+			answer5 = "Поищи у трупа";
+			question1 = "Хорошо";
+			question2 = "";
+			ShowString("s5",answer5,120,nextchoice_y,8);
+			nextchoice_y += 16;
+			number_choices = 1;
+		}
+		if(question == 3)
+		{
+			self.impulse = 23;
+			number_choices = 1;
+		}
+		question += 1;
+	}
+	
+	
+	ShowString("ch1",question1,120,160);
+	ShowString("ch2",question2,120,168);
+}
+void()tolyan_touch=
+{
+	other.talkperson = 2;
+	localcmd("exec dialogue.cfg\n");
+	d_cursor_x = 112;
+	d_cursor_y = 160;
+	choice = 1;
+	number_choices = 1;
+	nextchoice_y = 46;
+	ShowLmp("dialog","gfx/dialog_window.tga",0,0);
+
+	local float i;
+	float stringsteps = 16;
+	string teststring;
+	string 	text = "";
+	if(self.health <= 10)
+		text = "Мужик, помоги, дай аптечку";
+	else
+		text = "Спасибо, Меченый";
+	lengh = strlen(text);
+	currentlengh = 0;
+
+
+	for(i = 0;currentlengh <= lengh;i++)
+	{
+		teststring = substring(text,currentlengh,40);
+		currentlengh += 40;
+		answer[i] = strzone(teststring);
+		stringsteps += 16;
+		ShowString(s[i],answer[i],120,stringsteps,8);
+	}
+	if(CheckItem("medkit"))
+	{
+		question = 1;
+		question1 = "Держи";
+	}
+	else
+	{
+		question = 2;
+		question1 = "Извини, нету";
+	}
+	if(self.health >= 100)
+	{
+		question = 3;
+		question1 = "Пока";
+		self.enemy = other;
+		bot_face();
+		self.sequence = 0;
+		self.frame = 0;
+		self.nextthink = time + 0.1 + random();
+		self.think = self.th_stand;
+		self.ai_state = 0;
+		self.pausetime = time + 15;
+	}
+		
+	ShowString("ch1",question1,120,160,8);
+	ShowString("ch2",question2,120,176,8);
+	ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
+}
+
 void()actor_tolik=
 {
 	local entity bot;
@@ -78,7 +183,7 @@ void()actor_tolik=
 	bot.nextthink = time + 1;
 	bot.health = 10;
 	//bot.classname = "actor_green";
-	bot.use = tolyan_use;
+	bot.use = tolyan_touch;
 	bot.useflags = bot.useflags | PL_SHORTUSE;
 // polishing him up
 	setsize (bot, '-16 -16 0 ', '16 16 32');
@@ -90,4 +195,5 @@ void()actor_tolik=
 	//bot.attack_state = 0;
 	bot.button1 = 90;
 	bot.ai_state = 0;
+	bot.classname = "tolyan";
 }

@@ -79,69 +79,8 @@ void()read=
 	self.think = read;
 	self.nextthink = time + 0.025;
 }
-float quest;
-float choice;
-float d_cursor_x;
-float d_cursor_y;
-float number_choices;
-float nextchoice_y;
-float choice_complite[5];
-float question;
-string answer1;
-string answer2;
-string answer3;
-string answer4;
-string answer5;
-string answer6;
-string question1;
-string question2;
-float currentlengh;
-float lengh;
-void()dialog_down=
-{
-	if(choice >= number_choices)
-	{
-		d_cursor_x = 112;
-		d_cursor_y = 160;
-		choice = 1;
-		ShowString("cursor",">",d_cursor_x,d_cursor_y);
-		return;
-	}
-	choice += 1;
-	d_cursor_y += 8;
-	ShowString("cursor",">",d_cursor_x,d_cursor_y);
-}
-void()dialog_up=
-{
-	if(choice >= number_choices)
-	{
-		d_cursor_x = 112;
-		d_cursor_y = 160;	
-		choice = 1;
-		ShowString("cursor",">",d_cursor_x,d_cursor_y);
-		return;
-	}
-	if(choice == 1)
-	{
-		d_cursor_x = 112;
-		d_cursor_y = 168;	
-		choice = 2;
-		ShowString("cursor",">",d_cursor_x,d_cursor_y);
-		return;
-	}
-	choice -= 1;
-	d_cursor_y -= 8;
-	ShowString("cursor",">",d_cursor_x,d_cursor_y);
-}
-void()clear_text=
-{
-	local float i;
-	for(i = 0; i <= 19; i++)
-	{
-		ShowString(s[i],"",0,0);
-	}
-}
-void()dialog_choice=
+
+void()dialog_choice_sidor=
 {
 	if(quest != 1)
 	{
@@ -209,6 +148,7 @@ void()sidor_touch=
 	self.sequence = 0;
 	self.frame = 0;
 	read();
+	other.talkperson = SIDOR;
 	//отрисовать меню
 	//загрузить конфиг для импульсов
 	//сделать выбор и ответы
@@ -229,7 +169,7 @@ void()sidor_touch=
 		string teststring;
 		string 	text = "";
 
-		text = "значит выбирай как мы с тобой поступим либо тебе сейчас мозги буду парить как обычно всем новичкам делаю либо как с опытным сталкером получаешь задание и вперед";
+		text = "????? ??????";
 		lengh = strlen(text);
 		currentlengh = 0;
 	

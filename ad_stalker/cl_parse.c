@@ -85,6 +85,7 @@ typedef struct showstring_s
 {
 	qboolean	isactive;
 	float		x, y;
+	float		width;
 	char		labelstring[32];
 	char		stringtoshow[256];
 } showstring_t;
@@ -94,12 +95,13 @@ void showstring_decodeshow (void)
 {
 	int	i, k;
 	byte	stringlabel[256], stringname[256];
-	float	x, y;
+	float	x, y,width;
 
 	strcpy (stringlabel, MSG_ReadString());
 	strcpy (stringname, MSG_ReadString());
 	x = MSG_ReadShort ();
 	y = MSG_ReadByte ();
+	width = MSG_ReadByte ();
 	k = -1;
 	for (i=0 ; i<SHOWSTRING_MAXLABELS ; i++)
 	{
@@ -125,6 +127,7 @@ void showstring_decodeshow (void)
 	strcpy (showstring[k].stringtoshow, stringname);
 	showstring[k].x = x;
 	showstring[k].y = y;
+	showstring[k].width = width;
 }
 void showstring_clear (void)
 {
@@ -139,7 +142,7 @@ void showstring_drawall (void)
 
 	for (i=0 ; i<SHOWSTRING_MAXLABELS ; i++)
 		if (showstring[i].isactive)
-			 	Draw_FrontText(showstring[i].stringtoshow,showstring[i].x,showstring[i].y, 0xFFFFFFFF, 0);
+			 	Draw_FrontText(showstring[i].stringtoshow,showstring[i].x,showstring[i].y, 0x7F0088FF , showstring[i].width);
 			//Draw_String_Rus(showstring[i].x, showstring[i].y,showstring[i].stringtoshow);
 }
 void showstring_decodehide (void)

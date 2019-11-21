@@ -29,14 +29,43 @@ float(string itemname)RemoveItem=
 	local float k;
 	for(k=1;k<MAX_ITEMS;k++) 
 	{
-		if(other.slot[k].netname == itemname && other.slot[k].isfull)
+		if(self.slot[k].netname == itemname && self.slot[k].isfull)
 		{
-			other.maxitems -=1;
-			other.slot[k].isfull = 0;
-			other.slot[k].netname = string_null;
+			self.maxitems -=1;
+			self.slot[k].isfull = 0;
+			self.slot[k].netname = string_null;
 			HideLmp(item[k]);
 			return 1;
 		}
+	}
+	return 0;
+}
+//test,todo
+float(string itemname)GiveItem=
+{
+	if(other.maxitems == MAX_ITEMS)
+	{
+		bprint("other.maxitems == MAX_ITEM\n");
+		return;
+	}
+	local float k;
+	for(k=1;k<MAX_ITEMS;k++)
+	{
+		if(!other.slot[k].isfull)
+		{
+			other.slot[k].netname = itemname;
+			other.slot[k].isfull = 1;
+			break;		
+		}		
+	}
+}
+float(string itemname)CheckItem=
+{
+	local float k;
+	for(k=1;k<MAX_ITEMS;k++)
+	{
+		if(other.slot[k].netname == itemname && other.slot[k].isfull == 1)
+			return 1;		
 	}
 	return 0;
 }
@@ -88,8 +117,8 @@ void()Item_Descripton_ON=
 	if(self.slot[currentslot].netname == "drink")
 		description = "ןררררר";	
 	
-	ShowString("itemdesc",description,190,60);
-	ShowString("itemdesc2",description2,190,68);
+	ShowString("itemdesc",description,190,60,8);
+	ShowString("itemdesc2",description2,190,76,8);
 }
 void()ShowInventory=
 {
@@ -126,8 +155,8 @@ void()ShowInventory=
 	ShowLmp("cursor","gfx/cursor",self.cursor_x,self.cursor_y);
 	inventory = 1;
 	currentslot = 1;	
-	ShowString("s1","Description",190,45);
-	ShowString("s2","Suit",365,45);
+	ShowString("s1","Îןטסאםטו",190,42,8);
+	ShowString("s2","Êמסע‏ל",365,42,8);
 	sound (self, CHAN_BODY, "player/inv_open.wav", 1, ATTN_STATIC);
 	ShowString("s3",questlog,20,255);
 	Item_Descripton_ON();
@@ -435,6 +464,7 @@ void()DropItem =
 			if(currentslot)
 				HideLmp(item[currentslot]);
 			self.slot[currentslot].isfull = 0;
+			self.slot[currentslot].netname = string_null;//םמ ‎עמ םו עמקםמ 
 		}	
 	}
 }

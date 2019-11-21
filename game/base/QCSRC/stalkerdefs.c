@@ -58,13 +58,14 @@ void(string indexname)HideLmp=
 	WriteByte (MSG_ALL, SVC_HIDELMP);
 	WriteString(MSG_ALL,indexname);
 }
-void(string indexname,string stringname,float x,float y) ShowString=
+void(string indexname,string stringname,float x,float y,float width) ShowString=
 {
 	WriteByte (MSG_ALL, SVC_SHOWSTRING);
 	WriteString(MSG_ALL,indexname);
 	WriteString(MSG_ALL,stringname);
 	WriteShort(MSG_ALL,x);
-	WriteByte(MSG_ALL,y);	
+	WriteByte(MSG_ALL,y);
+	WriteByte(MSG_ALL,width);	
 }
 void(string indexname)HideString=
 {
