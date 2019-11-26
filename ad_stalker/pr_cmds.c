@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
+#include "psp/ezxml.h"
 #ifdef PSP_VFPU
 #include <pspmath.h>
 #endif
@@ -2524,6 +2525,33 @@ void PF_AddParticle (void)
 	dir =  G_VECTOR(OFS_PARM6);
 	AddParticle (type,org,count,size, time, color, dir);
 }
+
+void PF_xmlparse (void)
+{
+	char	*xmlname;
+	char	*child;
+	char	*attribute;
+	char	*compare;
+	char	*toreturn;
+	xmlname = G_STRING(OFS_PARM0);
+	child = G_STRING(OFS_PARM1);
+	attribute =  G_STRING(OFS_PARM2);
+	compare =  G_STRING(OFS_PARM3);
+	toreturn = G_STRING(OFS_PARM4);
+	ezxml_t xmlfile = ezxml_parse_file(xmlname), str;
+	char *idname;
+	for (str = ezxml_child(xmlfile, child); str; str = str->next)
+	{
+		idname = ezxml_attr(str, attribute);
+		if(!strcmp(compare, idname))
+		{
+			sprintf(pr_string_temp,"%s",ezxml_child(str, toreturn)->txt);
+			G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
+		}
+	}
+
+	ezxml_free(xmlfile);
+}
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
 /*
 builtin_t pr_builtin[] =
@@ -2631,6 +2659,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
 	{  81, "stof", PF_stof },
 	{  82, "getsoundlen", PF_GetSoundLen },
 	{  83, "AdvanceFrame", PF_AdvanceFrame },
+	{  84, "xmlparse", PF_xmlparse },
 	// 2001-09-20 QuakeC string manipulation by FrikaC/Maddes
 // 2001-09-20 QuakeC file access by FrikaC/Maddes  start
 	{  90, "tracebox", PF_tracebox },

@@ -886,8 +886,7 @@ void Host_Init (quakeparms_t *parms)
 
 	Con_Printf ("PSP Light Source v 1.0 (Exe: "__TIME__" "__DATE__")\n");
 	int currentCPU = scePowerGetCpuClockFrequency();
-	 int currentVRAM = sceGeEdramGetSize();
-	 SceSize baseTotal = sceKernelTotalFreeMemSize();
+	int currentVRAM = sceGeEdramGetSize();
 #ifdef KERNEL_MODE
   	#ifdef PSP_HARDWARE_VIDEO
 		Con_Printf ("HW Rendering - Kernel Mode \n");
@@ -905,7 +904,6 @@ void Host_Init (quakeparms_t *parms)
 	Con_Printf ("%4.1f PSP application heap \n",1.0f*PSP_HEAP_SIZE_MB);
 	Con_Printf ("CPU Speed %d MHz\n", currentCPU);
 	Con_Printf ("%d bytes VRAM \n",currentVRAM);
-	Con_Printf ("sceKernelTotalFreeMemSize: %08x",baseTotal);
 	R_InitTextures ();		// needed even for dedicated servers
  
 	if (cls.state != ca_dedicated)
