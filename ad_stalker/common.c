@@ -720,7 +720,7 @@ char *MSG_ReadString (void)
 	do
 	{
 		c = MSG_ReadChar ();
-		if (c == -1 || c == 0)
+		if (/*c == -1 ||*/ c == 0)
 			break;
 		string[l] = c;
 		l++;
