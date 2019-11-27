@@ -2525,33 +2525,63 @@ void PF_AddParticle (void)
 	dir =  G_VECTOR(OFS_PARM6);
 	AddParticle (type,org,count,size, time, color, dir);
 }
-
-void PF_xmlparse (void)
+void PF_xmlparsetext(void)
 {
 	char	*xmlname;
-	char	*child;
-	char	*attribute;
 	char	*compare;
 	char	*toreturn;
 	xmlname = G_STRING(OFS_PARM0);
-	child = G_STRING(OFS_PARM1);
-	attribute =  G_STRING(OFS_PARM2);
-	compare =  G_STRING(OFS_PARM3);
-	toreturn = G_STRING(OFS_PARM4);
+	compare =  G_STRING(OFS_PARM1);
+	toreturn = G_STRING(OFS_PARM2);
 	ezxml_t xmlfile = ezxml_parse_file(xmlname), str;
 	char *idname;
-	for (str = ezxml_child(xmlfile, child); str; str = str->next)
+	for (str = ezxml_child(xmlfile, "string"); str; str = str->next)
 	{
-		idname = ezxml_attr(str, attribute);
+		idname = ezxml_attr(str, "id");
 		if(!strcmp(compare, idname))
 		{
 			sprintf(pr_string_temp,"%s",ezxml_child(str, toreturn)->txt);
 			G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
+			//Con_Printf("%s \n",ezxml_child(str, toreturn)->txt);
 		}
 	}
 
 	ezxml_free(xmlfile);
 }
+void PF_xmlparsedialog (void)
+{
+	char	*xmlname;
+	char	*compare;
+	char	*compare2;
+	char	*toreturn;
+	xmlname = G_STRING(OFS_PARM0);
+	compare =  G_STRING(OFS_PARM1);
+	compare2 =  G_STRING(OFS_PARM2);
+	toreturn = G_STRING(OFS_PARM3);
+	ezxml_t f1 = ezxml_parse_file(xmlname), team, driver,test;
+	const char *teamname;
+	const char *phrasename;
+	for (team = ezxml_child(f1, "dialog"); team; team = team->next) {
+		teamname = ezxml_attr(team, "id");
+		//compare than do this
+		if(!strcmp(compare, teamname))
+		{
+			driver = ezxml_child(team, "phrase_list");
+			for (test = ezxml_child(driver, "phrase"); test; test = test->next) {
+				phrasename = ezxml_attr(test, "id");
+			//compare 2
+				if(!strcmp(compare2, phrasename))	
+				{	
+					sprintf(pr_string_temp,"%s",ezxml_child(test, toreturn)->txt);
+					G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
+					//Con_Printf("%s \n",ezxml_child(test, toreturn)->txt);
+				}
+			}
+		}
+	}
+ezxml_free(f1);
+}
+
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
 /*
 builtin_t pr_builtin[] =
@@ -2659,7 +2689,8 @@ ebfs_builtin_t pr_ebfs_builtins[] =
 	{  81, "stof", PF_stof },
 	{  82, "getsoundlen", PF_GetSoundLen },
 	{  83, "AdvanceFrame", PF_AdvanceFrame },
-	{  84, "xmlparse", PF_xmlparse },
+	{  84, "xmlparsedialog", PF_xmlparsedialog },
+	{  85, "xmlparsetext", PF_xmlparsetext },
 	// 2001-09-20 QuakeC string manipulation by FrikaC/Maddes
 // 2001-09-20 QuakeC file access by FrikaC/Maddes  start
 	{  90, "tracebox", PF_tracebox },
