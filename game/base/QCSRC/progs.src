@@ -1,5 +1,5 @@
 #output "../progs.dat"
-//#pragma autoproto
+#pragma autoproto
 #includelist 
 defs.c                                          // Definitions
 stalkerdefs.c
