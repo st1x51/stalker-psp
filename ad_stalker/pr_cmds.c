@@ -2542,6 +2542,7 @@ void PF_xmlparsetext(void)
 		{
 			sprintf(pr_string_temp,"%s",ezxml_child(str, toreturn)->txt);
 			G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
+			break;
 			//Con_Printf("%s \n",ezxml_child(str, toreturn)->txt);
 		}
 	}
@@ -2574,6 +2575,7 @@ void PF_xmlparsedialog (void)
 				{	
 					sprintf(pr_string_temp,"%s",ezxml_child(test, toreturn)->txt);
 					G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
+					break;
 					//Con_Printf("%s \n",ezxml_child(test, toreturn)->txt);
 				}
 			}
