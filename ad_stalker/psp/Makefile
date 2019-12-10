@@ -92,6 +92,7 @@ COMMON_OBJS = \
 
 # Object files used only under hardware video.
 VIDEO_OBJS = \
+	$(OBJ_DIR)/psp/ezxml.o \
 	$(OBJ_DIR)/psp/wad3.o \
 	$(OBJ_DIR)/psp/clipping.o \
 	$(OBJ_DIR)/psp/video_hardware.o \
@@ -119,7 +120,7 @@ VIDEO_FLAGS = -DPSP_HARDWARE_VIDEO
 OBJS	= $(VIDEO_OBJS) $(COMMON_OBJS) $(GPROF_OBJS)
 
 # Compiler flags.
-CFLAGS	= -ffast-math -O3 -G0 $(GPROF_FLAGS) -Wall -Wno-trigraphs -Winline -DBREAKALL -DPSP -DPSP_VFPU $(VIDEO_FLAGS) -g
+CFLAGS	= -ffast-math -O3 -G0 $(GPROF_FLAGS) -Wall -Wno-trigraphs -Winline -DBREAKALL -DPSP -DPSP_VFPU $(VIDEO_FLAGS) -g -DEZXML_NOMMAP
 
 # Libs.
 IMG_LIBS    = -ljpeg -lpng -lz
