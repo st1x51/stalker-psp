@@ -2573,6 +2573,11 @@ void PF_xmlparsedialog (void)
 			//compare 2
 				if(!strcmp(compare2, phrasename))	
 				{	
+					if(ezxml_child(test, toreturn) == NULL) //omg fix crash,if toreturn not found
+					{
+						G_INT(OFS_RETURN) = 0;
+						break;
+					}
 					sprintf(pr_string_temp,"%s",ezxml_child(test, toreturn)->txt);
 					G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
 					break;
