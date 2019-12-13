@@ -568,6 +568,7 @@ local vector 	new_vel;
 	}			
 	bprint(ftos(self.ideal_yaw)),"\n";
 };
+	entity head;
 void() PlayerPreThink = 
 {
 	if(self.incar)
@@ -584,7 +585,7 @@ void() PlayerPreThink =
 			if(self.value < 50)
 				self.rotate_time = time + 0.25;
 			else
-			self.rotate_time = time + 0.5;
+				self.rotate_time = time + 0.5;
 		}
 
 		//self.velocity = '0 0 0';

@@ -18,6 +18,7 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	self.use = func_wall_use;
 	setmodel (self, self.model);
+	makestatic (self);
 };
 float MISC_MODEL_ANIMATION = 1;
 .float startframe,endframe;

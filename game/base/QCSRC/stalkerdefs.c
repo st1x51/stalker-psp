@@ -35,7 +35,7 @@ enum
 
 //player radiation?
 .float radiation;
-
+string nextnode;
 //sprint
 .float sprint_time,sprinting;
 .float stamina_time;;
@@ -50,7 +50,7 @@ void(string indexname,string picname,float x,float y) ShowLmp=
 	WriteString(MSG_ALL,indexname);
 	WriteString(MSG_ALL,picname);
 	WriteShort(MSG_ALL,x);
-	WriteByte(MSG_ALL,y);	
+	WriteByte(MSG_ALL,y);
 }
 
 void(string indexname)HideLmp=
@@ -65,7 +65,7 @@ void(string indexname,string stringname,float x,float y,float width) ShowString=
 	WriteString(MSG_ALL,stringname);
 	WriteShort(MSG_ALL,x);
 	WriteByte(MSG_ALL,y);
-	WriteByte(MSG_ALL,width);	
+	WriteByte(MSG_ALL,width);
 }
 void(string indexname)HideString=
 {
@@ -111,39 +111,40 @@ enum
 };
 .float incar;
 #define MAX_ITEMS 13
-enum 
+.entity slot[MAX_ITEMS]; //объекты слота
+enum
 {
 	p_spark, //0
-	p_smoke, 
-	p_fire, 
-	p_fire2, 
-	p_bubble, 
-	p_lavasplash, 
-	p_gunblast, 
-	p_chunk, 
+	p_smoke,
+	p_fire,
+	p_fire2,
+	p_bubble,
+	p_lavasplash,
+	p_gunblast,
+	p_chunk,
 	p_shockwave,
-	p_inferno_flame, 
-	p_inferno_trail, 
-	p_sparkray, 
-	p_staticbubble, 
+	p_inferno_flame,
+	p_inferno_trail,
+	p_sparkray,
+	p_staticbubble,
 	p_trailpart,
-	p_dpsmoke, 
-	p_dpfire, 
-	p_teleflare, 
-	p_blood1, 
-	p_blood2, 
+	p_dpsmoke,
+	p_dpfire,
+	p_teleflare,
+	p_blood1,
+	p_blood2,
 	p_blood3,
 	p_bloodcloud,
     p_q3blood,
-	p_flame, 
-	p_lavatrail, 
-	p_bubble2, 
+	p_flame,
+	p_lavatrail,
+	p_bubble2,
 	p_rain,
-	p_streak, 
-	p_streaktrail, 
-	p_streakwave, 
+	p_streak,
+	p_streaktrail,
+	p_streakwave,
 	p_lightningbeam,
-	p_glow, 
+	p_glow,
 	p_alphatrail,//R00k
 	p_torch_flame,
 	p_flare,
