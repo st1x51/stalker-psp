@@ -189,10 +189,10 @@ void() monster_dog =
 	
 	self.solid = SOLID_SLIDEBOX;
 	self.movetype = MOVETYPE_STEP;
-
+	self.takedamage = DAMAGE_AIM;
 	setmodel (self, "models/dog.mdl");
 
-	setsize (self, '-16 -16 -16', '16 16 32');
+	setsize (self, '-16 -16 0', '16 16 32');
 	self.health = 50;
 	
 	self.th_stand = dog_stand_anim;

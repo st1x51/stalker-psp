@@ -22,25 +22,26 @@ float SIDOR = 1;
 сделать проверку на наличие определенного предмета в инвентаре
 для диалогов
 */
+
 void()dialog_down=
 {
 	if(choice >= number_choices)
 	{
-		d_cursor_x = 112;
+		d_cursor_x = 82;
 		d_cursor_y = 160;
 		choice = 1;
 		ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
 		return;
 	}
 	choice += 1;
-	d_cursor_y += 8;
+	d_cursor_y += 16;
 	ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
 }
 void()dialog_up=
 {
 	if(choice >= number_choices)
 	{
-		d_cursor_x = 112;
+		d_cursor_x = 82;
 		d_cursor_y = 160;	
 		choice = 1;
 		ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
@@ -48,14 +49,14 @@ void()dialog_up=
 	}
 	if(choice == 1)
 	{
-		d_cursor_x = 112;
-		d_cursor_y = 168;	
+		d_cursor_x = 82;
+		d_cursor_y = 176;	
 		choice = 2;
 		ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
 		return;
 	}
 	choice -= 1;
-	d_cursor_y -= 8;
+	d_cursor_y -= 16;
 	ShowString("cursor",">",d_cursor_x,d_cursor_y,8);
 }
 void()clear_text=
@@ -67,7 +68,7 @@ void()clear_text=
 }
 void()dialog_choice=
 {
-	if(self.talkperson == SIDOR)
+	if(self.talkperson == 1)
 		dialog_choice_sidor();
 	if(self.talkperson == 2)
 		dialog_choice_tolyan();

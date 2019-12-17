@@ -252,19 +252,27 @@ void() playerfootstep =
 };
 void() PlayerUse =
 {
-	local entity to_use;
-	
+	local entity pre_use,to_use;
+	vector source,org;
+	makevectors(self.v_angle);
 	if ( !(self.flags & FL_USERELEASED) )
 		return;		// don't pogo stick
 
     self.flags = self.flags - (self.flags & FL_USERELEASED);
-
-	to_use = findradius (self.origin, 80);
+	source = self.origin + '0 0 28';
+	traceline(source, source + v_forward * 96, 0, self);
+	if (trace_fraction == 1)
+		return;
+	org = trace_endpos - v_forward * 4;
+	pre_use = spawn();
+	pre_use.origin = org;
+	to_use = findradius (pre_use.origin, 32);
 	if(to_use != world)
 	{
 	   if((to_use.useflags & PL_SHORTUSE) || (to_use.useflags & PL_LONGUSE))
           SUB_FireTargetsEnt(to_use);
 	}
+	remove(pre_use);
 	self.button1 = 0;
 };
 

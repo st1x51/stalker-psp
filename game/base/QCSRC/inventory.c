@@ -5,7 +5,6 @@ float inventory;
 .float cursor_x;
 .float cursor_y;
 float currentslot; //текущий слот
-.entity slot[MAX_ITEMS]; //объекты слота
 string item[MAX_ITEMS]=
 {"",
 "item1",
