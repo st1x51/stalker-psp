@@ -1128,7 +1128,7 @@ void PF_ftos (void)
 	if (v == (int)v)
 		sprintf (pr_string_temp, "%d",(int)v);
 	else
-		sprintf (pr_string_temp, "%5.1f",v);
+		sprintf (pr_string_temp, "%1f",v);
 	G_INT(OFS_RETURN) = pr_string_temp - pr_strings;
 }
 
@@ -2548,7 +2548,9 @@ void PF_xmlparsetext(void)
 	}
 
 	ezxml_free(xmlfile);
+	
 }
+
 void PF_xmlparsedialog (void)
 {
 	char	*xmlname;
@@ -2562,6 +2564,7 @@ void PF_xmlparsedialog (void)
 	ezxml_t f1 = ezxml_parse_file(xmlname), team, driver,test;
 	const char *teamname;
 	const char *phrasename;
+	
 	for (team = ezxml_child(f1, "dialog"); team; team = team->next) {
 		teamname = ezxml_attr(team, "id");
 		//compare than do this
@@ -2586,6 +2589,7 @@ void PF_xmlparsedialog (void)
 			}
 		}
 	}
+	
 ezxml_free(f1);
 }
 
@@ -2696,8 +2700,8 @@ ebfs_builtin_t pr_ebfs_builtins[] =
 	{  81, "stof", PF_stof },
 	{  82, "getsoundlen", PF_GetSoundLen },
 	{  83, "AdvanceFrame", PF_AdvanceFrame },
-	{  84, "xmlparsedialog", PF_xmlparsedialog },
-	{  85, "xmlparsetext", PF_xmlparsetext },
+	{  84, "xmlparsedialog", PF_xmlparsedialog }, 
+	{  85, "xmlparsetext", PF_xmlparsetext }, 
 	// 2001-09-20 QuakeC string manipulation by FrikaC/Maddes
 // 2001-09-20 QuakeC file access by FrikaC/Maddes  start
 	{  90, "tracebox", PF_tracebox },
