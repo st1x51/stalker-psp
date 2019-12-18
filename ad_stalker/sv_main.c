@@ -430,6 +430,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 	int		bits;
 	byte	*pvs;
 	vec3_t	org;
+	vec3_t edist;
 	float	miss;
 	edict_t	*ent;
 
@@ -458,8 +459,16 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 				
 			if (i == ent->num_leafs)
 				continue;		// not visible
-		}
 
+		}
+		// VectorSubtract(clent->v.origin,ent->v.origin, edist);      
+		int	origin;
+		int lodDist_x = ( ent->v.origin[0] - clent->v.origin[0]);
+		int lodDist_y = ( ent->v.origin[1] - clent->v.origin[1]);
+		origin =lodDist_x * lodDist_x + lodDist_y * lodDist_y;
+		int lodDist = vfpu_sqrtf(origin);
+		if (lodDist > r_loddist.value &&  ent->v.solid != SOLID_BSP)
+			continue;
 		if (msg->maxsize - msg->cursize < 16)
 		{
 			Con_Printf ("packet overflow\n");

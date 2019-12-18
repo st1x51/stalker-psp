@@ -39,7 +39,7 @@ typedef	int	fixed16_t;
 
 #define RAD2DEG( x )	((float)(x) * (float)(180.f / M_PI))
 #define DEG2RAD( x )	((float)(x) * (float)(M_PI / 180.f))
-
+#define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5))
 struct mplane_s;
 
 extern vec3_t vec3_origin;

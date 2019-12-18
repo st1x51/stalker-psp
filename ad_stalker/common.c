@@ -608,6 +608,10 @@ void MSG_WriteAngle (sizebuf_t *sb, float f)
 	MSG_WriteByte (sb, ((int)f*256/360) & 255);
 }
 
+void MSG_WriteAngle16 (sizebuf_t *sb, float f)
+{
+	MSG_WriteShort (sb, Q_rint(f * 65536.0 / 360.0) & 65535);
+}
 //
 // reading functions
 //
@@ -741,6 +745,10 @@ float MSG_ReadAngle (void)
 	return MSG_ReadChar() * (360.0/256);
 }
 
+float MSG_ReadAngle16 (void)
+{
+	return MSG_ReadShort() * (360.0 / 65536);
+}
 
 
 //===========================================================================
