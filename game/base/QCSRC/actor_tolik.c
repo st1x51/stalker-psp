@@ -24,8 +24,6 @@ void()tolyan_use=
 {
 	if(self.health <= 10)
 	{
-		//if(RemoveItem("medkit"))
-		//{
 			self.health = 100;
 			self.sequence = 0;
 			self.frame = 0;
@@ -40,7 +38,6 @@ void()tolyan_use=
 			bot_face();
 			sound (self, CHAN_WEAPON, "tolik/tolik_thanks.wav", 1, ATTN_NORM);
 			self.pausetime = time + getsoundlen("tolik/tolik_thanks.wav");
-	//	}
 	}
 }
 void()tolyan_dead =
@@ -138,7 +135,6 @@ void() dialog_choice_tolyan=
 				self.impulse = 23;
 		dialog1 = xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit",ftos(cvar("saved3")),"text");
 		answer3 = strzone(xmlparsetext("base/stable_dialogs_escape.xml",dialog1,"text"));
-		//ShowString("s3",answer3,100,30,8);
 		format_text(answer3);
 		nextnode = xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit",ftos(cvar("saved3")),"next");
 		if(cvar("saved3")== 1)
@@ -150,106 +146,10 @@ void() dialog_choice_tolyan=
 
 	ShowString("ch1",	substring(question1,0,40),90,160,8);
 	ShowString("ch2",	substring(question1,40,40),90,176,8);
-		//ShowString("ch1",question1,90,160,8);
 		if(	cvar("saved3") == 0)
 			ShowString("ch1","...",90,160,8);
 }
 
-/*
-void()dialog_choice_tolyan=
-{
-	entity oldent;
-	entity object;
-	object = find(world,classname,"tolyan");
-
-	if(choice == 1 && choice_complite[1] != 1)
-	{
-		if(question == 1)
-		{
-			clear_text();
-			RemoveItem("medkit");
-			oldent = self;
-			self = object;
-			tolyan_use();
-			self = oldent;
-			answer3 = "�������";
-			question1 = "�� �� �� ���";
-			question2 = "";
-		  ShowString("s3",answer3,120,nextchoice_y,8);
-			nextchoice_y += 16;
-			number_choices = 1;
-			self.impulse = 23;
-		}
-		if(question == 2)
-		{
-			string dialog1,dialog2;
-			dialog1 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","1","text");
-			answer5 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog1,"text"));
-			dialog2 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","3","text");
-			question1 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog2,"text"));
-			question2 = "";
-			ShowString("s5",answer5,120,nextchoice_y,8);
-			nextchoice_y += 16;
-			number_choices = 1;
-		}
-		if(question == 3)
-		{
-			string dialog1,dialog2;
-			dialog1 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","31","text");
-			answer6 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog1,"text"));
-			//dialog2 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","3","text");
-			question1 = "����";
-			question2 = "";
-			ShowString("s6",answer6,120,nextchoice_y,8);
-			nextchoice_y += 16;
-			number_choices = 1;
-			//self.impulse = 23;
-			//number_choices = 1;
-		}
-		if(question == 4)
-		{
-			clear_text();
-			self.impulse = 23;
-			number_choices = 1;
-		}
-		if(question == 5)
-		{
-			clear_text();
-			dialog1 =  xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","2111","text");
-			answer3 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog1,"text"));
-			dialog2 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","21111","text");
-			question1 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog2,"text"));
-			question2 = "";
-			ShowString("s3",answer3,120,nextchoice_y,8);
-			nextchoice_y += 16;
-			number_choices = 1;
-		}
-		if(question == 6)
-		{
-			clear_text();
-			dialog1 =  xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","211111","text");
-			answer3 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog1,"text"));
-			dialog2 = xmlparsedialog("dialogs_escape.xml","tutorial_wounded_give_medkit","2111111","text");
-			question1 = strzone(xmlparsetext("stable_dialogs_escape.xml",dialog2,"text"));
-			question2 = "";
-			ShowString("s3",answer3,120,nextchoice_y,8);
-			nextchoice_y += 16;
-			number_choices = 1;
-		}
-		if(question == 7)
-		{
-			clear_text();
-			self.impulse = 23;
-			number_choices = 1;
-		}
-		question += 1;
-	}
-
-
-	ShowString("ch1",question1,120,160);
-	ShowString("ch2",question2,120,168);
-}
-*/
 void()tolyan_touch=
 {
 	string xmltest,test2;
@@ -293,23 +193,21 @@ void()tolyan_touch=
 		cvar_set("saved3",nextnode);
 		dialog =  xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","61","text");
 		question1 = xmlparsetext("base/stable_dialogs_escape.xml",dialog,"text");
-		//question1 = "�����";
 	}
 	else
 	{
 		question = 2;
 		nextnode = xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","6","next");
 		cvar_set("saved3",nextnode);
-		dialog =  xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","61","text"); //�� ��� �����?
+		dialog =  xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","61","text"); 
 		question1 = xmlparsetext("base/stable_dialogs_escape.xml",dialog,"text");
-		//question1 = "������, ����";
 	}
 	if(self.health >= 100)
 	{
 		nextnode = xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","21","next");
 		cvar_set("saved3",nextnode);
 		question = 3;
-		dialog =  xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","211","text"); //�� ��� �����?
+		dialog =  xmlparsedialog("base/dialogs_escape.xml","tutorial_wounded_give_medkit","211","text");
 		question1 = xmlparsetext("base/stable_dialogs_escape.xml",dialog,"text");
 		self.enemy = other;
 		bot_face();
@@ -352,7 +250,7 @@ void()actor_tolik=
 	bot.use = tolyan_touch;
 	bot.useflags = bot.useflags | PL_SHORTUSE;
 // polishing him up
-	setsize (bot, '-16 -16 0 ', '16 16 32');
+	setsize (bot, '-16 -16 0 ', '16 16 72');
 	bot.ideal_yaw = bot.angles * '0 1 0';
 	bot.yaw_speed = 120;
 	bot.speed = 1;

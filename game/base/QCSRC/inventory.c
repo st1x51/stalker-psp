@@ -45,7 +45,7 @@ float(string itemname)GiveItem=
 	if(other.maxitems == MAX_ITEMS)
 	{
 		bprint("other.maxitems == MAX_ITEM\n");
-		return;
+		return 0;
 	}
 	local float k;
 	for(k=1;k<MAX_ITEMS;k++)

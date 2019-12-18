@@ -82,64 +82,36 @@ void()read=
 
 void()dialog_choice_sidor=
 {
-	if(quest != 1)
+	string dialog;
+	string vopros;
+	string otvet;
+	string textotvet;
+	if(	cvar("saved3") == 0)
+		self.impulse = 23;
+	if(question == 1)
 	{
-	if(choice == 1 && choice_complite[1] != 1)
-	{
-		if(question == 1)
-		{
-			clear_text();
-			answer3 = "есть дело одно";
-			question1 = "продолжай";
-			question2 = "";
-		    ShowString("s3",answer3,120,nextchoice_y);
-			nextchoice_y += 8;
-		}
-		if(question == 2)
-		{
-			answer5 = "надо артефакт найти";
-			question1 = "уже иду";
-			question2 = "";
-			ShowString("s5",answer5,120,nextchoice_y);
-			nextchoice_y += 8;
-			number_choices = 1;
-		}
-		if(question == 3)
-		{
-			answer4 = "он на агропроме";
-			question1 = "ок";
-			question2 = "";
-			ShowString("s4",answer4,120,nextchoice_y);
-			nextchoice_y += 8;
-			quest = 1;
-			questlog = "найти артефакт";
-		}
-		question += 1;
-		//choice_complite[1] = 1;
+		string dialog1,dialog2;
+		clear_text();
+		//getting text from person
+		nextnode = xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog",ftos(cvar("saved3")),"next");
+		cvar_set("saved3",nextnode);
+		if(	cvar("saved3") == 0) // be sure
+				self.impulse = 23;
+		dialog1 = xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog",ftos(cvar("saved3")),"text");
+		answer3 = strzone(xmlparsetext("base/stable_dialogs_escape.xml",dialog1,"text"));
+		format_text(answer3);
+		nextnode = xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog",ftos(cvar("saved3")),"next");
+		if(cvar("saved3")== 1)
+			nextnode = "3";
+		cvar_set("saved3",nextnode);
+		dialog2 = xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog",ftos(cvar("saved3")),"text");
+		question1 =  strzone(xmlparsetext("base/stable_dialogs_escape.xml",dialog2,"text"));
 	}
-	if(choice == 2 && choice_complite[2] != 1)
-	{
-		if(question == 1)
-		{
-			clear_text();
-			answer4 = "поговори с волком";
-			question1 = "ок";
-			question2 = "";
-			ShowString("s4",answer4,120,nextchoice_y);
-			number_choices = 1;
-			dialog_up();
-			quest = 1;
-			questlog = "поговорить с волком";
-		}
 
-		//choice_complite[2] = 1;
-		question += 1;
-	}
-	
-	
-	ShowString("ch1",question1,120,160);
-	ShowString("ch2",question2,120,168);
-	}
+	ShowString("ch1",	substring(question1,0,40),90,160,8);
+	ShowString("ch2",	substring(question1,40,40),90,176,8);
+		if(	cvar("saved3") == 0)
+			ShowString("ch1","...",90,160,8);
 }
 string answer[20];
 string s[20] = {"s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15"};
@@ -148,46 +120,42 @@ void()sidor_touch=
 	self.sequence = 0;
 	self.frame = 0;
 	read();
-	other.talkperson = SIDOR;
-	//отрисовать меню
-	//загрузить конфиг для импульсов
-	//сделать выбор и ответы
-	//сделать кнопку выхода
+	other.talkperson = 1;
+	string xmltest,test2;
+	local float i;
+	float stringsteps = 16;
+	string teststring;
+	string 	text = "";
+	string dialog,dialog2;
+	dialog = xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog","3","text");
+	text = strzone(xmlparsetext("base/stable_dialogs_escape.xml",dialog,"text"));
+
 	localcmd("exec dialogue.cfg\n");
-	d_cursor_x = 112;
+	d_cursor_x = 82;
 	d_cursor_y = 160;
 	choice = 1;
 	number_choices = 2;
 	nextchoice_y = 46;
-	question = 1;
-	ShowLmp("dialog","gfx/dialog_window.tga",0,0);
+	ShowLmp("dialog","gfx/dialog_window.png",0,0);
 
-	local float i;
-	if(quest != 1)
+	lengh = strlen(text);
+	currentlengh = 0;
+
+	for(i = 0;currentlengh <= lengh;i++)
 	{
-		float stringsteps = 30;
-		string teststring;
-		string 	text = "";
-
-		text = "????? ??????";
-		lengh = strlen(text);
-		currentlengh = 0;
-	
-
-		for(i = 0;currentlengh <= lengh;i++)
-		{
-			teststring = substring(text,currentlengh,40);
-			currentlengh += 40;
-			answer[i] = strzone(teststring);
-			stringsteps += 8;
-			ShowString(s[i],answer[i],80,stringsteps);
-		}
-		question1 = "давай как с новичком ничего не помню";
-		question2 = "давай как с опытным";
-		ShowString("ch1",question1,120,160);
-		ShowString("ch2",question2,120,168);
-		ShowString("cursor",">",d_cursor_x,d_cursor_y);
+		teststring = substring(text,currentlengh,40);
+		currentlengh += 40;
+		answer[i] = strzone(teststring);
+		stringsteps += 16;
+		ShowString(s[i],answer[i],90,stringsteps,8);
 	}
+	question = 1;
+	cvar_set("saved3","32");
+	dialog =  xmlparsedialog("base/dialogs_escape.xml","escape_trader_start_dialog","32","text");
+	question1 = strzone(xmlparsetext("base/stable_dialogs_escape.xml",dialog,"text"));
+	ShowString("ch1",question1,90,160,8);
+	ShowString("ch2",question2,90,176,8);
+	ShowString("cursor",">",d_cursor_x,d_cursor_y,8);	
 }
 void()first_talk=
 {
@@ -217,10 +185,9 @@ void()actor_sidor=
 	self.solid = SOLID_BBOX;
 	self.use = sidor_touch;
 	self.useflags = self.useflags | PL_LONGUSE;
-	setsize (self, '-16 -16 -16', '16 16 16');
+	setsize (self, '-16 -16 0', '16 16 32');
 	self.sequence = 1;
 	self.frame = 0;
-	 quest = 0;
 	self.think = first_talk;
 	self.nextthink = time + 2;
 }

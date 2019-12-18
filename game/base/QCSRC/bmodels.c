@@ -18,7 +18,6 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	self.use = func_wall_use;
 	setmodel (self, self.model);
-	makestatic (self);
 };
 float MISC_MODEL_ANIMATION = 1;
 .float startframe,endframe;
@@ -63,7 +62,6 @@ void() infodecal =
 };
 void (float dur, float ht, float f, float r, float g, float b, float a) ScreeFade =
 {
-
 		WriteByte (MSG_ALL, SVC_SCREENFADE);
 
 		WriteShort(MSG_ALL, dur );

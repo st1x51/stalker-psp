@@ -1,6 +1,5 @@
 void() BoltTouch =
 {
-	//sound (self, CHAN_WEAPON, "weapons/bounce.wav", 1, ATTN_NORM);	// bounce sound
 	if (self.velocity == '0 0 0')
 		self.avelocity = '0 0 0';
 	remove(self);
@@ -33,7 +32,6 @@ void() ThrowBolt =
 	bolt.angles = vectoangles(bolt.velocity);
 	bolt.angles_x = random(0,360);
 	bolt.angles_y = random(0,360);
-	//bolt.touch = GrenadeTouch;
 	
 // set bolt duration
 	bolt.nextthink = time + 3;
