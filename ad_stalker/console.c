@@ -494,7 +494,7 @@ void Con_DrawInput (void)
 	text = key_lines[edit_line];
 	
 // add the cursor frame
-	text[key_linepos] = " ";//10+((int)(realtime*con_cursorspeed)&1);
+	text[key_linepos] = ' ';
 	
 // fill out remainder with spaces
 	for (i=key_linepos+1 ; i< con_linewidth ; i++)

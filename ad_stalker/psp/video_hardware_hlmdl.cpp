@@ -651,7 +651,7 @@ void R_DrawHLModel(entity_t	*curent)
 	//specific to entity
 	//model.sequence	= cl.stats[STAT_SEQUENCE]; //not shure about this
 	//model.frame		= 0;
-	//model.frametime	= 0;
+	model.frametime	= 0;
 
 	//HL_NewSequence(&model, cl.stats[STAT_SEQUENCE]);
 	HL_NewSequence(&model, curent->sequence);
@@ -666,14 +666,14 @@ void R_DrawHLModel(entity_t	*curent)
 	model.controller[3] = curent->bonecontrols[3];
 	model.controller[4] = 0;//sin(cl.time)*127+127;
 
-   // model.frametime += (cl.time /* - cl.lerpents[curent->keynum].framechange*/)*sequence->timing;
-	/*
+   model.frametime += (cl.time /* - cl.lerpents[curent->keynum].framechange*/)*sequence->timing;
+	
 	if (model.frametime>=1)
 	{
-		model.frame += (int) model.frametime;
+		//model.frame += (int) model.frametime;
 		model.frametime -= (int)model.frametime;
 	}
-*/
+
 	//if (!sequence->numframes)
 	//	return;
 
