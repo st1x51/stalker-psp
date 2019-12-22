@@ -123,7 +123,8 @@ qboolean	scr_disabled_for_loading;
 float		scr_disabled_time;
 qboolean	scr_drawloading;
 qboolean	block_drawing;
-int crosshairpic;
+int 		crosshairpic;
+int			loadingScreen;
 void SCR_ScreenShot_f (void);
 
 /*
@@ -688,13 +689,12 @@ void SCR_BeginLoadingPlaque (void)
 {
 	CDAudio_Pause();
 	S_StopAllSounds (qtrue);
-//Kirpi4?
-/*
+
 	if (cls.state != ca_connected)
 		return;
 	if (cls.signon != SIGNONS)
 		return;
-*/
+
 // redraw with no console and the loading plaque
 	Con_ClearNotify ();
 	scr_centertime_off = 0;
@@ -843,7 +843,21 @@ void SCR_TileClear (void)
 			(r_refdef.vrect.height + r_refdef.vrect.y));
 	}
 }
-
+void SCR_DrawLoadScreen (void)
+{
+	qpic_t	*pic;
+	if (developer.value)
+		return;
+	if (!con_forcedup)
+	    return;
+	if(loadingScreen == 1)
+	{
+		pic = Draw_CachePic ("gfx/ui_load");
+		pic->width = vid.width;
+		pic->height = vid.height;
+		Draw_Pic (scr_vrect.x, scr_vrect.y, pic);
+	}
+}
 /*
 ==================
 SCR_UpdateScreen
@@ -924,7 +938,6 @@ void SCR_UpdateScreen (void)
 	else if (scr_drawloading)
 	{
 		SCR_DrawLoading ();
-		Hud_Draw ();
 	}
 	else if (cl.intermission == 1 && key_dest == key_game)
 	{
@@ -939,7 +952,6 @@ void SCR_UpdateScreen (void)
 	{
 		if (crosshair.value)
 			showimgpart (scr_vrect.x + scr_vrect.width/2 - 16 ,  scr_vrect.y + scr_vrect.height/2 - 16, 0, 0, 32, 32, crosshairpic, 0,GU_RGBA(200, 200, 200, 255));  
-			//Draw_Character (scr_vrect.x + scr_vrect.width/2 - 4, scr_vrect.y + scr_vrect.height/2 - 4, '+');
 		
 		SCR_DrawRam ();
 		SCR_DrawNet ();
@@ -952,6 +964,7 @@ void SCR_UpdateScreen (void)
 		showstring_drawall();
 		SCR_DrawConsole ();	
 		M_Draw ();
+		SCR_DrawLoadScreen();
 	}
 
 	V_UpdatePalette ();

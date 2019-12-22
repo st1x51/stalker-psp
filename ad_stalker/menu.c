@@ -44,7 +44,7 @@ extern cvar_t	r_dithering;
 #ifdef PSP_MP3_HWDECODE
 extern int changeMp3Volume;
 #endif
-
+extern int loadingScreen;
 extern qboolean bmg_type_changed;
 void CL_RemoveGIPFiles (char *path);
 void (*vid_menudrawfn)(void);
@@ -523,6 +523,7 @@ void M_SinglePlayer_Key (int key)
 			Cbuf_AddText ("maxplayers 1\n");
 			Cvar_SetValue ("saved1", 0);
 			Cbuf_AddText ("map escape_2\n");
+			loadingScreen  = 1;
 			break;
 
 		case 1:
@@ -2378,7 +2379,7 @@ void M_Quit_Draw (void)
 #define MAX_Y 8
 #define MAX_X 12
 
-#define MAX_CHAR_LINE 57
+#define MAX_CHAR_LINE 36
 #define MAX_CHAR      72
 
 int  osk_pos_x = 0;
@@ -2453,13 +2454,11 @@ void M_OSK_Draw (void) // keyboard console
 	y = 20;
 	x = 96;
 
-	//M_DrawTextBox (10, 10, 		     26, 10);
-	//M_DrawTextBox (10+(26*CHAR_SIZE),    10,  10, 10);
-	//M_DrawTextBox (10, 10+(10*CHAR_SIZE),36,  3);
-	
-	Draw_Fill(x, y, 292, 9*CHAR_SIZE+1, GU_RGBA(50,50,50,255));
-	//Draw_Fill(x, 62+(11*CHAR_SIZE), 292, 9, GU_RGBA(50,50,50,255));
-	
+//	M_DrawTextBox (10, 10, 		     26, 10);
+//	M_DrawTextBox (10+(26*CHAR_SIZE),    10,  10, 10);
+//	M_DrawTextBox (10, 10+(10*CHAR_SIZE),36,  3);
+	Draw_Fill(x, y, 292, 10*CHAR_SIZE+1, GU_RGBA(50,50,50,255));
+	Draw_Fill(x, 100, 292, CHAR_SIZE+1, GU_RGBA(50,50,50,200));
 	for(i=0;i<=MAX_Y;i++) 
 	{
 		M_PrintWhite (x, y+(CHAR_SIZE*i), osk_text[i]);
@@ -2481,12 +2480,12 @@ void M_OSK_Draw (void) // keyboard console
 		strncpy(oneline,osk_buffer+MAX_CHAR_LINE, text_len - MAX_CHAR_LINE);
 		oneline[text_len - MAX_CHAR_LINE] = '\0';
 		
-		M_Print (CHAR_SIZE*2, scr_conlines-(CHAR_SIZE*2), oneline );
-		M_Print (CHAR_SIZE*2+(text_len*CHAR_SIZE), scr_conlines-(CHAR_SIZE*2),"_");
+		M_Print (x+4, y+4+(CHAR_SIZE*(MAX_Y+3)), oneline );
+		M_PrintWhite (x+4+(CHAR_SIZE*(text_len - MAX_CHAR_LINE)), y+4+(CHAR_SIZE*(MAX_Y+3)),"_");
 	}
 	else {
-		M_PrintWhite (CHAR_SIZE*2, scr_conlines-(CHAR_SIZE*2), osk_buffer );
-		M_PrintWhite (CHAR_SIZE*2+(text_len*CHAR_SIZE), scr_conlines-(CHAR_SIZE*2), "_");
+		M_Print (x+4, y+(CHAR_SIZE*(MAX_Y+2)), osk_buffer );
+		M_PrintWhite (x+4+(CHAR_SIZE*(text_len)), y+(CHAR_SIZE*(MAX_Y+2)),"_");
 	}
 	M_Print      (x+((((osk_pos_x)*2)+1)*CHAR_SIZE), y+(osk_pos_y*CHAR_SIZE), selected_char);
 

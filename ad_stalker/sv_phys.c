@@ -1436,20 +1436,12 @@ void SV_CheckWaterTransition (edict_t *ent)
 	}
 	
 	if (cont <= CONTENTS_WATER)
-	{
-		if (ent->v.watertype == CONTENTS_EMPTY)
-		{	// just crossed into water
-			SV_StartSound (ent, 0, "misc/h2ohit1.wav", 255, 1);
-		}		
+	{	
 		ent->v.watertype = cont;
 		ent->v.waterlevel = 1;
 	}
 	else
-	{
-		if (ent->v.watertype != CONTENTS_EMPTY)
-		{	// just crossed into water
-			SV_StartSound (ent, 0, "misc/h2ohit1.wav", 255, 1);
-		}		
+	{	
 		ent->v.watertype = CONTENTS_EMPTY;
 		ent->v.waterlevel = cont;
 	}
@@ -1690,26 +1682,13 @@ void SV_Physics_Step (edict_t *ent)
 #else
 void SV_Physics_Step (edict_t *ent)
 {
-	qboolean	hitsound;
-
 // freefall if not onground
 	if ( ! ((int)ent->v.flags & (FL_ONGROUND | FL_FLY | FL_SWIM) ) )
 	{
-		if (ent->v.velocity[2] < sv_gravity.value*-0.1)
-			hitsound = true;
-		else
-			hitsound = false;
-
 		SV_AddGravity (ent);
 		SV_CheckVelocity (ent);
 		SV_FlyMove (ent, host_frametime, NULL);
 		SV_LinkEdict (ent, true);
-
-		if ( (int)ent->v.flags & FL_ONGROUND )	// just hit ground
-		{
-			if (hitsound)
-				SV_StartSound (ent, 0, "demon/dland2.wav", 255, 1);
-		}
 	}
 
 // regular thinking
