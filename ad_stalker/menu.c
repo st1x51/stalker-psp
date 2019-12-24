@@ -133,11 +133,6 @@ char		m_return_reason [32];
 
 void M_ConfigureNetSubsystem(void);
 
-void Menu_Init (void)
-{
-
-}
-
 /*
 ================
 M_DrawCharacter
@@ -348,26 +343,11 @@ void M_Main_Draw (void)
 	Draw_Pic (vid.width - 150, vid.height - 160, p);
 	
 	w = 134;
-
-	//M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
-	//p = Draw_CachePic ("gfx/ttl_main.lmp");
-	//M_DrawPic ( (320-p->width)/2, 4, p);
-	//M_DrawTransPic (72, 32, Draw_CachePic ("gfx/mainmenu.lmp") );
-	
-	//Draw_Fill (vid.width - w - 12, vid.height - 88, 80, 44, GU_RGBA(108, 108, 108, 150));
-	
 	M_PrintWhite (vid.width - w, vid.height - 156, "Single");
 	M_PrintWhite (vid.width - w, vid.height-138, "Multy");
 	M_PrintWhite (vid.width - w, vid.height-120, "Options");
 	M_PrintWhite (vid.width - w, vid.height-102, "Info");
 	M_PrintWhite (vid.width - w, vid.height-84, "Quit");
-
-	//f = (int)(host_time * 10)%6;
-	
-	//M_DrawTransPic (54, 32 + m_main_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", f+1 ) ) );
-	// Cursor
-	//M_DrawCharacter (vid.width - w - 10, vid.height - 86 + (m_main_cursor*8), 12+((int)(realtime*4)&1));
-	
 	p = Draw_CachePic ("gfx/menu2.lmp");
 	Draw_Pic (vid.width - 180, vid.height - 170 + (m_main_cursor * 18), p);
 }
@@ -381,8 +361,6 @@ void M_Main_Key (int key)
 		key_dest = key_game;
 		m_state = m_none;
 		cls.demonum = m_save_demonum;
-		//if (cls.demonum != -1 && !cls.demoplayback && cls.state != ca_connected)
-		//	CL_NextDemo ();
 		break;
 
 	case K_DOWNARROW:
@@ -442,42 +420,19 @@ void M_Menu_SinglePlayer_f (void)
 
 void M_SinglePlayer_Draw (void)
 {
-	//int		f;
 	int 	w;
 	
 	qpic_t	*p;
-
-	/*
-	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
-	p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-	M_DrawPic ( (320-p->width)/2, 4, p);
-	M_DrawTransPic (72, 32, Draw_CachePic ("gfx/sp_menu.lmp") );
-	M_PrintWhite (20, 20 * 5, "Maps");
-
-	M_DrawTransPic (54, 32 + m_singleplayer_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", f+1 ) ) );
-	*/
-	
-	//p = Draw_PicFromWad ("MENU1");
-	
 	p = Draw_CachePic ("gfx/menu1.lmp");
 	
 	Draw_Pic (vid.width - 150, vid.height - 160, p);
 	
 	w = 134;
 	
-	//Draw_Fill (vid.width - w - 12, vid.height - 88, 76, 36, GU_RGBA(108, 108, 108, 150));
-	
 	M_PrintWhite (vid.width - w, vid.height-156, "New");
 	M_PrintWhite (vid.width - w, vid.height-138, "Load");
 	M_PrintWhite (vid.width - w, vid.height-120, "Save");
 	M_PrintWhite (vid.width - w, vid.height-102, "Maps");
-
-	//f = (int)(host_time * 10)%6;
-
-	// Cursor
-	//M_DrawCharacter (vid.width - w - 10, vid.height - 86 + (m_singleplayer_cursor*8), 12+((int)(realtime*4)&1));
-	
-	//p = Draw_PicFromWad ("MENU2");
 	
 	p = Draw_CachePic ("gfx/menu2.lmp");
 	
@@ -511,11 +466,6 @@ void M_SinglePlayer_Key (int key)
 		switch (m_singleplayer_cursor)
 		{
 		case 0:
-			/*
-			if (sv.active)
-				if (!SCR_ModalMessage("Are you sure you want to\nstart a new game?\n"))
-					break;
-			*/
 			key_dest = key_game;
 			if (sv.active)
 				Cbuf_AddText ("disconnect\n");
@@ -606,9 +556,6 @@ void M_Load_Draw (void)
 	int		i;
 	qpic_t	*p;
 
-	//p = Draw_CachePic ("gfx/p_load.lmp");
-	//M_DrawPic ( (320-p->width)/2, 4, p);
-	
 	Draw_Fill (8, 20, 300, 114, GU_RGBA(0, 0, 0, 150));
 	
 	M_PrintWhite (20, 22 + 8*i, "Load");
@@ -626,9 +573,6 @@ void M_Save_Draw (void)
 	int		i;
 	qpic_t	*p;
 
-	//p = Draw_CachePic ("gfx/p_save.lmp");
-	//M_DrawPic ( (320-p->width)/2, 4, p);
-	
 	Draw_Fill (8, 20, 300, 144, GU_RGBA(0, 0, 0, 150));
 	
 	M_PrintWhite (20, 22 + 8*i, "Save");
@@ -774,17 +718,6 @@ void M_Menu_Maps_f (void)
 void M_Maps_Draw (void)
 {
 	int		i;
-	/*
-	qpic_t	*p;
-	p = Draw_CachePic(va("maps/shots/%s", maps_list[maps_cursor+maps_stage]));
-
-	if(p->height == 128 && p->width == 128)
-	{
-	   M_DrawPic ( 256, 32, p);
-    }
-    */
-    //M_DrawTextBox (150, 8, 4, 1);
-	
 	Draw_Fill (8, 14, 200, 200, GU_RGBA(0, 0, 0, 150));
 	
     M_PrintWhite(20, 16, "Maps list");
@@ -794,8 +727,6 @@ void M_Maps_Draw (void)
        M_PrintWhite (20, 32 + 8,"Maps not found");
        return;
 	}
-
-    //M_DrawTextBox (24, 24, maps_maxlen, MAPS_INPAGE);
 
 	for (i = 0 ; i < MAPS_INPAGE; i++)
 	{
@@ -1438,6 +1369,8 @@ enum
 	OPT_SCRSIZE,	
 	OPT_GAMMA,		
 	OPT_VSYNC,	
+    OPT_MIPMAPS,
+    OPT_MIPMAP_BIAS,
     //OPT_GAP_0_1,
 	OPT_MUSICTYPE,
 	OPT_MUSICVOL,
@@ -1594,6 +1527,20 @@ void M_AdjustSliders (int dir)
 			case OPT_VSYNC:	
 				Cvar_SetValue ("r_vsync", !r_vsync.value);
 				break;
+            case OPT_MIPMAPS:
+				Cvar_SetValue ("r_mipmaps", !r_mipmaps.value);
+				break;
+
+			case OPT_MIPMAP_BIAS:	// mipmapping bais
+				r_mipmaps_bias.value += dir * 0.5;
+				if (r_mipmaps_bias.value < -10)
+					r_mipmaps_bias.value = -10;
+				if (r_mipmaps_bias.value > 0)
+					r_mipmaps_bias.value = 0;
+
+				Cvar_SetValue ("r_mipmaps_bias", r_mipmaps_bias.value);
+				break;
+
 			case OPT_CROSSHAIR:	
 				Cvar_SetValue ("crosshair", !crosshair.value);
 				break;
@@ -1735,10 +1682,6 @@ void M_Options_Draw (void)
 {
 	float	 r;
 	qpic_t	*p;
-
-	//M_DrawTransPic (20, 4, Draw_CachePic ("gfx/qplaque.lmp") );
-	//p = Draw_CachePic ("gfx/p_option.lmp");
-	//M_DrawPic ( (320-p->width)/2, 4, p);
 	
 	Draw_Fill (8, 30, 316, 142, GU_RGBA(0, 0, 0, 150));
 
@@ -1773,6 +1716,12 @@ void M_Options_Draw (void)
 			M_PrintWhite (20, 32+(OPT_VSYNC*8),           "VSync Enabled");
 			M_DrawCheckbox (174, 32+(OPT_VSYNC*8), r_vsync.value);
 	
+			M_PrintWhite (20, 32+(OPT_MIPMAPS*8),        "MipMapping");
+			M_DrawCheckbox (174, 32+(OPT_MIPMAPS*8), r_mipmaps.value);
+
+			M_PrintWhite (20, 32+(OPT_MIPMAP_BIAS*8),		"MipMap Amount");
+			r = (r_mipmaps_bias.value + 10) / 10;
+			M_DrawSlider (174, 32+(OPT_MIPMAP_BIAS*8), r);
 			M_PrintWhite (20, 32+(OPT_CROSSHAIR*8),	"Show Crosshair");
 			M_DrawCheckbox (174, 32+(OPT_CROSSHAIR*8), crosshair.value);
 
@@ -1927,37 +1876,6 @@ void M_Options_Key (int k)
 
 //=============================================================================
 /* KEYS MENU */
-
-/*
-char *bindnames[][2] =
-{
-{"+attack", 		"attack"},
-{"impulse 10", 		"change weapon"},
-{"+jump", 			"jump / swim up"},
-{"+crouch",		    "crouch"},
-{"+use",		    "use"},
-{"+forward", 		"walk forward"},
-{"+back", 			"backpedal"},
-{"+left", 			"turn left"},
-{"+right", 			"turn right"},
-{"+speed", 			"run"},
-{"+moveleft", 		"step left"},
-{"+moveright", 		"step right"},
-{"+strafe", 		"sidestep"},
-{"+lookup", 		"look up"},
-{"+lookdown", 		"look down"},
-{"centerview", 		"center view"},
-#ifdef PSP
-{"+mlook", 			"analog nub look"},
-{"+klook", 			"d-pad look"},
-#else
-{"+mlook", 			"mouse look"},
-{"+klook", 			"keyboard look"},
-#endif
-{"+moveup",			"swim up"},
-{"+movedown",		"swim down"}
-};
-*/
 char *bindnames[][2] =
 {
 {"+forward", 		"step forward"},

@@ -903,7 +903,6 @@ void Host_Init (quakeparms_t *parms)
 	Con_Printf ("%4.1f megabyte heap \n",parms->memsize/ (1024*1024.0));
 	Con_Printf ("%4.1f PSP application heap \n",1.0f*PSP_HEAP_SIZE_MB);
 	Con_Printf ("CPU Speed %d MHz\n", currentCPU);
-	Con_Printf ("%d bytes VRAM \n",currentVRAM);
 	R_InitTextures ();		// needed even for dedicated servers
  
 	if (cls.state != ca_dedicated)

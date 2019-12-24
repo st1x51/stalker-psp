@@ -525,7 +525,7 @@ void SCR_DrawFPS (void)
 	y = 0 ; //vid.height - (sb_lines * (vid.height/240) )- 16;
    
 	Draw_ColoredString (x, y, st, 0);
-
+	Draw_ColoredString ( vid.width / 4, 264, "Alpha Build "__DATE__" ", 0);
 	//"&cF20 C &cF50 r &cF80 o &c883 w &cA85 _ &cA85 b &c668 a &c55A r"
 	//
 }
