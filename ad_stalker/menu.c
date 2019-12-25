@@ -1367,7 +1367,7 @@ enum
 	OPT_SUBMENU_0 = OPT_SUBMENU,
     //OPT_GAP_0,
 	OPT_SCRSIZE,	
-	OPT_GAMMA,		
+	OPT_LODDIST,		
 	OPT_VSYNC,	
     OPT_MIPMAPS,
     OPT_MIPMAP_BIAS,
@@ -1415,7 +1415,7 @@ enum
 	OPT_SUBMENU_0 = OPT_SUBMENU,
     //OPT_GAP_0,
 	OPT_SCRSIZE,	
-	OPT_GAMMA,		
+	OPT_LODDIST,		
 	OPT_VSYNC,	
     //OPT_GAP_0_1,
 	OPT_MUSICTYPE,
@@ -1481,13 +1481,13 @@ void M_AdjustSliders (int dir)
 					scr_viewsize.value = 120;
 				Cvar_SetValue ("viewsize", scr_viewsize.value);
 				break;
-			case OPT_GAMMA:	// gamma
-				v_gamma.value -= dir * 0.05;
-				if (v_gamma.value < 0.5)
-					v_gamma.value = 0.5;
-				if (v_gamma.value > 1)
-					v_gamma.value = 1;
-				Cvar_SetValue ("gamma", v_gamma.value);
+			case OPT_LODDIST:	
+				r_loddist.value += dir * 128;
+				if (r_loddist.value < 256)
+					r_loddist.value = 256;
+				if (r_loddist.value > 1024)
+					r_loddist.value = 1024;
+				Cvar_SetValue ("r_loddist", r_loddist.value);
 				break;
 			case OPT_MUSICVOL:	// music volume
 #ifdef WIN32
@@ -1695,10 +1695,8 @@ void M_Options_Draw (void)
 			r = (scr_viewsize.value - 30) / (120 - 30);
 			M_DrawSlider (174, 32+(OPT_SCRSIZE*8), r);
 		
-			M_PrintWhite (20, 32+(OPT_GAMMA*8), 	   "Brightness");
-			r = (1.0 - v_gamma.value) / 0.5;
-			M_DrawSlider (174, 32+(OPT_GAMMA*8), r);
-		
+			M_PrintWhite (20, 32+(OPT_LODDIST*8), 	   "LOD Distance");
+			M_PrintWhite (174, 32+(OPT_LODDIST*8), Cvar_VariableString("r_loddist"));         
 			M_PrintWhite (20, 32+(OPT_MUSICVOL*8), "CD Music Volume");
 			r = bgmvolume.value;
 			M_DrawSlider (174, 32+(OPT_MUSICVOL*8), r);
