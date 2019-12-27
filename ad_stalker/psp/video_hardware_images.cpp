@@ -1031,7 +1031,7 @@ int loadtextureimage_hud (char* filename)
 		return 0;
     }
 
-	texnum = GL_LoadTexture (filename, image_width, image_height, data, 4, qtrue, GU_NEAREST, 0);
+	texnum = GL_LoadTexture (filename, image_width, image_height, data, 4, qtrue, GU_LINEAR, 0);
 	free(data);
     
 	return texnum;
