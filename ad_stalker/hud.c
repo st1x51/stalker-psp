@@ -91,7 +91,7 @@ void DrawRadar (void)
 	for (i=0 ; i<sv.num_edicts ; i++)
 	{
 		e = EDICT_NUM(i);
-		if ( !strcmp (pr_strings + e->v.classname, "actor_green") )
+		if ( !strcmp (pr_strings + e->v.classname, "actor_green") ||  !strcmp (pr_strings + e->v.classname, "actor_sidor"))
 		{
 			px = (player->origin[0]-e->v.origin[0])*0.06;
 			py = (e->v.origin[1]-player->origin[1])*0.06;

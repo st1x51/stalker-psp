@@ -582,6 +582,9 @@ void CL_ParseServerInfo (void)
 //
 // now we try to load everything else until a cache allocation fails
 //
+      
+    loading_num_step = loading_num_step + nummodels + numsounds;
+    sprintf(loading_name, "Models and Sounds");
 
 	for (i=1 ; i<nummodels ; i++)
 	{
@@ -592,6 +595,9 @@ void CL_ParseServerInfo (void)
 			return;
 		}
 		CL_KeepaliveMessage ();
+		loading_cur_step++;
+		strcpy(loading_name, model_precache[i]);
+	    SCR_UpdateScreen ();
 	}
 
 	S_BeginPrecaching ();
@@ -599,9 +605,13 @@ void CL_ParseServerInfo (void)
 	{
 		cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
 		CL_KeepaliveMessage ();
-	}
+		loading_cur_step++;
+		strcpy(loading_name, sound_precache[i]);
+		SCR_UpdateScreen ();
+    }
 	S_EndPrecaching ();
 
+   	Clear_LoadingFill ();
 
 // local state
 	cl_entities[0].model = cl.worldmodel = cl.model_precache[1];

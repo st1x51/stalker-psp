@@ -431,6 +431,9 @@ void Mod_LoadTextures (lump_t *l)
 	loadmodel->numtextures = m->nummiptex;
 	loadmodel->textures = static_cast<texture_t**>(Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , loadname));
 
+	loading_num_step = m->nummiptex;
+	sprintf(loading_name,"Textures");
+	
 	for (i=0 ; i<m->nummiptex ; i++)
 	{
 		m->dataofs[i] = LittleLong(m->dataofs[i]);
@@ -495,7 +498,10 @@ void Mod_LoadTextures (lump_t *l)
 				mapTextureNameList.push_back(tx->gl_texturenum);
         	}
 		}
+		strcpy(loading_name, mt->name);
 		free (tx_pixels);
+        loading_cur_step++;
+		SCR_UpdateScreen();
 	}
 
 //
@@ -1476,12 +1482,34 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer)
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 
 // load into heap
+    loading_num_step = 16;
+    strcpy(loading_name, "Vertexes");
 	
 	Mod_LoadVertexes (&header->lumps[LUMP_VERTEXES]);
+
+    loading_cur_step++;
+	strcpy(loading_name, "Edges");
+	SCR_UpdateScreen ();
+
 	Mod_LoadEdges (&header->lumps[LUMP_EDGES]);
+
+    loading_cur_step++;
+	strcpy(loading_name, "Surfedges");
+	SCR_UpdateScreen ();
+
 	Mod_LoadSurfedges (&header->lumps[LUMP_SURFEDGES]);
-    Mod_LoadEntities (&header->lumps[LUMP_ENTITIES]);
-    Mod_LoadTextures (&header->lumps[LUMP_TEXTURES]);
+
+    loading_cur_step++;
+	strcpy(loading_name, "Entities");
+	SCR_UpdateScreen ();
+	
+	Mod_LoadEntities (&header->lumps[LUMP_ENTITIES]);
+
+    loading_cur_step++;
+	strcpy(loading_name, "Textures");
+	SCR_UpdateScreen ();
+	Mod_LoadTextures (&header->lumps[LUMP_TEXTURES]);
+
     if(mod->bspversion == HL_BSPVERSION)
 	{
     	Mod_HL_LoadLighting (&header->lumps[LUMP_LIGHTING]);
@@ -1490,18 +1518,60 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer)
     {
 		Mod_LoadLighting (&header->lumps[LUMP_LIGHTING]);
     }
-	Mod_LoadPlanes (&header->lumps[LUMP_PLANES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
+    Mod_LoadPlanes (&header->lumps[LUMP_PLANES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadTexinfo (&header->lumps[LUMP_TEXINFO]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadFaces (&header->lumps[LUMP_FACES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadMarksurfaces (&header->lumps[LUMP_MARKSURFACES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadVisibility (&header->lumps[LUMP_VISIBILITY]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadLeafs (&header->lumps[LUMP_LEAFS]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadNodes (&header->lumps[LUMP_NODES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadClipnodes (&header->lumps[LUMP_CLIPNODES]);
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_LoadSubmodels (&header->lumps[LUMP_MODELS]);
 
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	Mod_MakeHull0 ();
-	
+
+    loading_cur_step++;
+	SCR_UpdateScreen ();
+
 	mod->numframes = 2;		// regular and alternate animation
 	
 //

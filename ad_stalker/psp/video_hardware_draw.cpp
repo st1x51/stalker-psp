@@ -46,6 +46,10 @@ int			char_texture_rus;
 int         nonetexture;
 bool 	 	tex_scale_down = true;
 
+//Loading Fill by Crow_bar
+float 	loading_cur_step;
+char	loading_name[32];
+float 	loading_num_step;
 typedef byte texel;
 
 typedef struct
@@ -472,7 +476,7 @@ void Draw_Init (void)
 
 	gl = (glpic_t *)conback->data;
 	//gl->index = GL_LoadTexture ("gfx/conback.tga", conback->width, conback->height, ncdata, 1, qfalse, GU_LINEAR, 0);
-	gl->index = loadtextureimage ("gfx/conback",0, 0, qfalse, GU_NEAREST);
+	gl->index = loadtextureimage ("gfx/conback",0, 0, qfalse, GU_LINEAR);
 	conback->width = vid.width;
 	conback->height = vid.height;
 
@@ -498,6 +502,7 @@ void Draw_Init (void)
 	//
 	//draw_disc = Draw_PicFromWad ("disc");
 	//draw_backtile = Draw_PicFromWad ("backtile");
+	Clear_LoadingFill ();
 }
 
 
@@ -680,7 +685,7 @@ static void Draw_AlphaPic (int x, int y, qpic_t *pic, float alpha)
 	sceGuColor(GU_RGBA(0xff, 0xff, 0xff, static_cast<unsigned int>(alpha * 255.0f)));
 	sceGuDrawArray(
 		GU_SPRITES,
-		GU_TEXTURE_16BIT | GU_VERTEX_16BIT | GU_TRANSFORM_2D,
+		GU_TEXTURE_16BIT  | GU_VERTEX_16BIT | GU_TRANSFORM_2D,
 		2, 0, vertices);
     sceGuColor(0xffffffff);
 	if (alpha != 1.0f)
@@ -810,7 +815,44 @@ void Draw_ConsoleBackground (int lines)
 	else
 		Draw_AlphaPic (0, lines - vid.height, conback, (float)(1.2 * lines)/y);
 }
+/*
+================
+Draw_LoadingFill
+By Crow_bar
+================
+*/
+void Draw_LoadingFill(void)
+{
+    if(!loading_num_step)
+		return;
 
+	int size       	= 8;
+	int max_step   	= 150;
+    int x          	= (vid.width  / 2) - (max_step / 2);
+    int y          	= vid.height - (size/ 2) - 24;
+	int l;
+	char str[64];
+
+
+	if(loading_cur_step > loading_num_step)
+	      loading_cur_step = loading_num_step;
+
+    float loadsize = loading_cur_step * (max_step / loading_num_step);
+	Draw_Fill (x, y, loadsize, size,GU_RGBA(105, 105, 105, 100));
+
+	strcpy (str, "Loading: ");
+	strcat (str, loading_name);
+	l = strlen (str);
+	Draw_String((vid.width - l*8)/2, y, str);
+}
+
+void Clear_LoadingFill (void)
+{
+    //it is end loading
+	loading_cur_step = 0;
+	loading_num_step = 0;
+	memset(loading_name, 0, sizeof(loading_name));
+}
 
 /*
 =============

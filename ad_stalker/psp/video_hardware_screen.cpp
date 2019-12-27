@@ -105,7 +105,7 @@ qboolean	scr_initialized;		// ready to draw
 //qpic_t		*scr_ram;
 //qpic_t		*scr_net;
 //qpic_t		*scr_turtle;
-
+qpic_t *loadscreen;
 int			scr_fullupdate;
 
 int			clearconsole;
@@ -401,7 +401,7 @@ void SCR_Init (void)
 	//scr_ram = Draw_PicFromWad ("ram");
 	//scr_net = Draw_PicFromWad ("net");
 	//scr_turtle = Draw_PicFromWad ("turtle");
-
+	loadscreen = Draw_CachePic ("gfx/ui_load.lmp");
 	scr_initialized = qtrue;
 }
 
@@ -845,17 +845,15 @@ void SCR_TileClear (void)
 }
 void SCR_DrawLoadScreen (void)
 {
-	qpic_t	*pic;
 	if (developer.value)
 		return;
 	if (!con_forcedup)
 	    return;
 	if(loadingScreen == 1)
 	{
-		pic = Draw_CachePic ("gfx/ui_load");
-		pic->width = vid.width;
-		pic->height = vid.height;
-		Draw_Pic (scr_vrect.x, scr_vrect.y, pic);
+		loadscreen->width = vid.width;
+		loadscreen->height = vid.height;
+		Draw_Pic (scr_vrect.x, scr_vrect.y, loadscreen);
 	}
 }
 /*
@@ -877,7 +875,7 @@ void SCR_UpdateScreen (void)
 	scr_copytop = 0;
 	scr_copyeverything = 0;
 
-	if (scr_disabled_for_loading)
+	if (scr_disabled_for_loading && !loading_num_step)
 	{
 		if (realtime - scr_disabled_time > 60)
 		{
@@ -965,8 +963,10 @@ void SCR_UpdateScreen (void)
 		SCR_DrawConsole ();	
 		M_Draw ();
 		SCR_DrawLoadScreen();
+		Draw_LoadingFill();
 	}
 
+	
 	V_UpdatePalette ();
 
 	GL_EndRendering ();
