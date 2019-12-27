@@ -533,7 +533,7 @@ vector(string s) stov = #117;
 string(string s) strzone = #118;
 string(string s) strunzone = #119;
 //QuakeC string manipulation by FrikaC  end
-float tokenize (string) = #5;
+float tokenize (string s) = #5;
 float(string s) getsoundlen = #82;	
 float AdvanceFrame(float start, float end)= #83;	
 string(string xmlname,string dialog_id,string phrase_id,string texttoreturn) xmlparsedialog = #84;	

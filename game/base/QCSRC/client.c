@@ -74,6 +74,15 @@ void() GetSinglePlayerParameters =
 	
 	readtext = fgets(readparms);
 	self.tozbm_fired  = stof(readtext);	
+	//ak
+	readtext = fgets(readparms);
+	self.aksu_clip  = stof(readtext);	
+	
+	readtext = fgets(readparms);
+	self.ammo_aksu  = stof(readtext);	
+	
+	readtext = fgets(readparms);
+	self.aksu_fired  = stof(readtext);	
 	fclose (readparms);
 };
  
@@ -139,6 +148,14 @@ void() writefirst =
 	writethis = ftos(other.tozbm_fired);
 	fputs (writeparms, writethis,"\n");
 	
+	writethis = ftos(other.aksu_clip);
+	fputs (writeparms, writethis,"\n");
+	
+	writethis = ftos(other.ammo_aksu);
+	fputs (writeparms, writethis,"\n");
+	
+	writethis = ftos(other.aksu_fired);
+	fputs (writeparms, writethis,"\n");
 	fclose (writeparms);
 	bprint("Saving Parameters \n");
 };
@@ -170,7 +187,6 @@ void() writeinventory =
 };
 void() readinventory =
 {
- 
 	local float readparms;
 	local string readtext;
 	if(cvar("saved1") == 1)
@@ -576,7 +592,7 @@ local vector 	new_vel;
 	}			
 	bprint(ftos(self.ideal_yaw)),"\n";
 };
-	entity head;
+
 void() PlayerPreThink = 
 {
 	if(self.incar)
@@ -596,7 +612,6 @@ void() PlayerPreThink =
 				self.rotate_time = time + 0.5;
 		}
 
-		//self.velocity = '0 0 0';
 		car_drive();
 	}
 	if ((self.stamina_time < time) &&  self.sprinting == FALSE)
@@ -638,11 +653,11 @@ void()detector=
 		{	
 			anomaly_len = self.origin - anomaly.origin;
 			counttime = vlen(anomaly_len) / 400;
-		if (self.detector_time < time)
-		{
-			sound (self, CHAN_BODY, "detectors/da-2_beep1.wav", 1, ATTN_STATIC);
-			self.detector_time = time + counttime;
-		}
+			if (self.detector_time < time)
+			{
+				sound (self, CHAN_BODY, "detectors/da-2_beep1.wav", 1, ATTN_STATIC);
+				self.detector_time = time + counttime;
+			}
 		}
 		anomaly = anomaly.chain;
 	}
@@ -774,14 +789,13 @@ entity() SelectSpawnPoint =
 				pcount = 0;
 		}
 	}
-	
+			
 	if (!spot)
 	{
 		spot = find (world, classname, "info_player_start");
 		if (!spot)
 			error ("PutClientInServer: no info_player_start on level");
 	}
-	
 	return spot;
 };
 
@@ -822,6 +836,7 @@ void() PutClientInServer =
 	cvar_set("chase_active","0");
 	cvar_set("scr_nohud","0");
 	cvar_set("r_drawviewmodel","1"); 
+	
 	local float k;
 	for(k=1;k<MAX_ITEMS;k++)
 	{
@@ -832,5 +847,9 @@ void() PutClientInServer =
 	self.think = readinventory;
 	self.nextthink = time + 1;
 	UpdateWeapon();
+	//playing track after menu
+	WriteByte(MSG_ALL,SVC_CDTRACK);
+	WriteByte(MSG_ALL,2);
+	WriteByte(MSG_ALL,0);
 };
 void() info_player_start={};
