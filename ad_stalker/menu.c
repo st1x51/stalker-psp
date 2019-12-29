@@ -338,21 +338,21 @@ void M_Main_Draw (void)
 	int w;
 
 	w = 134;
-	//Draw_Fill (vid.width - w, vid.height-156, 100, 16, GU_RGBA(255, 215, 0, 50));
+	Draw_Fill (vid.width - w, vid.height-156, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height - 152, "SINGLE");
 	
-	//Draw_Fill (vid.width - w, vid.height-138, 100, 16, GU_RGBA(255, 215, 0, 50));
+	Draw_Fill (vid.width - w, vid.height-138, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-134, "MULTYPLAYER");
 	
-	//Draw_Fill (vid.width - w, vid.height-120, 100, 16, GU_RGBA(255, 215, 0, 50));
+	Draw_Fill (vid.width - w, vid.height-120, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-116, "SETTINGS");
 	
-	//Draw_Fill (vid.width - w, vid.height-102, 100, 16, GU_RGBA(255, 215, 0, 50));
+	Draw_Fill (vid.width - w, vid.height-102, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-98, "INFO");
 	
-	//Draw_Fill (vid.width - w, vid.height-84, 100, 16, GU_RGBA(255, 215, 0, 50));
+	Draw_Fill (vid.width - w, vid.height-84, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-80, "QUIT");
-	Draw_Fill (vid.width - 134, vid.height-156 + (m_main_cursor * 18), 100, 16, GU_RGBA(105, 105, 105, 100));
+	Draw_Fill (vid.width - 134, vid.height-156 + (m_main_cursor * 18), 100, 16, GU_RGBA(255, 215, 0, 100));
 	//p = Draw_CachePic ("gfx/menu2.lmp");
 	//Draw_Pic (vid.width - 180, vid.height - 170 + (m_main_cursor * 18), p);
 	
@@ -435,11 +435,18 @@ void M_SinglePlayer_Draw (void)
 	//Draw_Pic (vid.width - 150, vid.height - 160, p);
 	
 	w = 134;
+	Draw_Fill (vid.width - w, vid.height-156, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-152, "NEW");
+	
+	Draw_Fill (vid.width - w, vid.height-138, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-134, "LOAD");
+	
+	Draw_Fill (vid.width - w, vid.height-120, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-116, "SAVE");
+	
+	Draw_Fill (vid.width - w, vid.height-102, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-98, "MAPS");
-	Draw_Fill (vid.width - 134, vid.height-156 + (m_singleplayer_cursor * 18), 100, 16, GU_RGBA(105, 105, 105, 100));
+	Draw_Fill (vid.width - 134, vid.height-156 + (m_singleplayer_cursor * 18), 100, 16, GU_RGBA(255, 215, 0, 100));
 	f = (int)(host_time * 10)%8;
 	M_DrawTransPic (395, 120 + (m_singleplayer_cursor *20), Draw_CachePic( va("gfx/menu/ui_ani_cursor_0%i.lmp", f+1 ) ));
 	//p = Draw_CachePic ("gfx/menu2.lmp");
