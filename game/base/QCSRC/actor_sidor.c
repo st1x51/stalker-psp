@@ -162,6 +162,7 @@ void()first_talk=
 	sound (self, CHAN_WEAPON, "trader_monolog1.wav", 1, ATTN_NORM);
 	self.sidorstate = 1;
 	idle();
+	TaskManager("gfx/quest_killstrelok.png","KILL STRELOK"); //test
 }
 void()actor_sidor=
 {
@@ -185,7 +186,7 @@ void()actor_sidor=
 	self.solid = SOLID_BBOX;
 	self.use = sidor_touch;
 	self.useflags = self.useflags | PL_LONGUSE;
-	setsize (self, '-16 -16 0', '16 16 32');
+	setsize (self, '-16 -16 0', '16 16 64');
 	self.sequence = 1;
 	self.frame = 0;
 	self.think = first_talk;

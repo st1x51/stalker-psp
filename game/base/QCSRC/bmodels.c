@@ -10,7 +10,24 @@ void() func_wall_use =
 {	
 	self.frame = 1 - self.frame;
 };
-
+void()lod_think=
+{
+	vector len;
+	entity pl;
+	pl = find(world,classname,"player");
+	len = pl.origin - ((self.mins+self.maxs)*0.5);
+	len_z = 0;
+	if(rint(vlen(len)) < (cvar("r_loddist")))
+	{
+		self.effects = 0;
+	}
+	else
+	{
+		self.effects = EF_NODRAW;
+	}
+	self.think = lod_think;
+	self.nextthink = time + 0.1;
+}
 void() func_wall =
 {
 	self.angles = '0 0 0';
@@ -18,8 +35,10 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	self.use = func_wall_use;
 	setmodel (self, self.model);
+	lod_think();
 };
 float MISC_MODEL_ANIMATION = 1;
+float MISC_MODEL_NOCOLLISION = 2;
 .float startframe,endframe;
 void()misc_model_animation=
 {
@@ -31,7 +50,6 @@ void()misc_model_animation=
 }
 void() misc_model =
 {
-	
 	precache_model (self.model);
 	setmodel (self, self.model);
 	self.movetype = MOVETYPE_STEP;
@@ -43,6 +61,11 @@ void() misc_model =
 		self.nextthink = time +0.1;
 	}
 	setsize(self,'-16 -16 0','16 16 32');
+	if(self.spawnflags & MISC_MODEL_NOCOLLISION)
+	{
+		self.movetype = MOVETYPE_NONE;
+		self.solid = SOLID_NOT;
+	}
 }; 
 .string texture;
 .float decalsize;

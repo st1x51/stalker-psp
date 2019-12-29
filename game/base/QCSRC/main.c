@@ -109,4 +109,6 @@ void() precaches =
 	precache_sound("reaction/music/reaction_music_2.wav");
 	precache_sound("reaction/music/reaction_music_3.wav");
 	precache_sound("detectors/da-2_beep1.wav");
+	//pda
+	precache_sound("device/pda/pda_objective.wav");
 };

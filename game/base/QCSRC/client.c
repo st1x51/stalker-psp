@@ -803,6 +803,25 @@ void() SetNewParms = {};
 void() SetChangeParms = {};
 void()DecodeLevelParms= {};
 //Called to spawn the clients player entity
+entity manager;
+void()TaskManagerOFF=
+{
+	HideLmp("task");
+	HideString("taskstring");
+	remove(manager);
+}
+void(string icon,string msg)TaskManager=
+{
+	float len;
+	manager = spawn();
+	len = strlen(msg);
+	len = len * 8;
+	ShowLmp("task",icon,395,0);
+	ShowString("taskstring",msg,395 - len,20,8);
+	localcmd("play device/pda/pda_objective.wav \n");
+	manager.think = TaskManagerOFF;
+	manager.nextthink = time + 5;
+}
 void() PutClientInServer =
 {
 	local	entity spot;
