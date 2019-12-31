@@ -270,6 +270,7 @@ void Host_WriteConfiguration (void)
 		}
 		
 		Key_WriteBindings (f);
+		Key_WriteDTBindings (f);
 		Cvar_WriteVariables (f);
 
 		fclose (f);

@@ -40,6 +40,7 @@ keydest_t	key_dest;
 int		key_count;			// incremented every key event
 
 char	*keybindings[256];
+char	*dtbindings[256];
 qboolean	consolekeys[256];	// if true, can't be rebound while in console
 qboolean	menubound[256];	// if true, can't be rebound while in menu
 int		keyshift[256];		// key to map to if shift held down in console
@@ -455,11 +456,40 @@ void Key_SetBinding (int keynum, char *binding)
 	}
 			
 // allocate memory for new binding
+	l = Q_strlen (binding);
+	new = Z_Malloc (l+1);
+	Q_strcpy (new, binding);
+	new[l] = 0;
+	keybindings[keynum] = new;
+}
+
+
+/*
+===================
+Key_SetDTBinding
+===================
+*/
+void Key_SetDTBinding (int keynum, char *binding)
+{
+	char	*new;
+	int		l;
+
+	if (keynum == -1)
+		return;
+
+// free old bindings
+	if (dtbindings[keynum])
+	{
+		Z_Free (dtbindings[keynum]);
+		dtbindings[keynum] = NULL;
+	}
+
+// allocate memory for new binding
 	l = Q_strlen (binding);	
 	new = Z_Malloc (l+1);
 	Q_strcpy (new, binding);
 	new[l] = 0;
-	keybindings[keynum] = new;	
+	dtbindings[keynum] = new;
 }
 
 /*
@@ -541,6 +571,50 @@ void Key_Bind_f (void)
 
 	Key_SetBinding (b, cmd);
 }
+/*
+===================
+Key_Binddt_f
+===================
+*/
+void Key_Binddt_f (void)
+{
+	int			i, c, b;
+	char		cmd[1024];
+
+	c = Cmd_Argc();
+
+	if (c != 2 && c != 3)
+	{
+		Con_Printf ("binddt <key> [command] : attach a command to a double tap key\n");
+		return;
+	}
+	b = Key_StringToKeynum (Cmd_Argv(1));
+	if (b==-1)
+	{
+		Con_Printf ("\"%s\" isn't a valid key\n", Cmd_Argv(1));
+		return;
+	}
+
+	if (c == 2)
+	{
+		if (dtbindings[b])
+			Con_Printf ("\"%s\" = \"%s\"\n", Cmd_Argv(1), dtbindings[b] );
+		else
+			Con_Printf ("\"%s\" is not bound\n", Cmd_Argv(1) );
+		return;
+	}
+
+// copy the rest of the command line
+	cmd[0] = 0;		// start out with a null string
+	for (i=2 ; i< c ; i++)
+	{
+		if (i > 2)
+			strcat (cmd, " ");
+		strcat (cmd, Cmd_Argv(i));
+	}
+
+	Key_SetDTBinding (b, cmd);
+}
 
 /*
 ============
@@ -559,6 +633,22 @@ void Key_WriteBindings (FILE *f)
 				fprintf (f, "bind \"%s\" \"%s\"\n", Key_KeynumToString(i), keybindings[i]);
 }
 
+/*
+============
+Key_WriteDTBindings
+
+Writes lines containing "binddt key value"
+============
+*/
+void Key_WriteDTBindings (FILE *f)
+{
+	int		i;
+
+	for (i=0 ; i<256 ; i++)
+		if (dtbindings[i])
+			if (*dtbindings[i])
+				fprintf (f, "binddt \"%s\" \"%s\"\n", Key_KeynumToString(i), dtbindings[i]);
+}
 
 /*
 ===================
@@ -637,6 +727,7 @@ void Key_Init (void)
 // register our functions
 //
 	Cmd_AddCommand ("bind",Key_Bind_f);
+	Cmd_AddCommand ("binddt",Key_Binddt_f);
 	Cmd_AddCommand ("unbind",Key_Unbind_f);
 	Cmd_AddCommand ("unbindall",Key_Unbindall_f);
 
@@ -651,13 +742,18 @@ Called by the system between frames for both key up and key down events
 Should NOT be called during an interrupt!
 ===================
 */
+int lastkey;
+double lastkeytime;
+int oldkey;
+double oldkeytime;
 void Key_Event (int key, qboolean down)
 {
 	char	*kb;
 	char	cmd[1024];
 
+	oldkey = lastkey;
 	keydown[key] = down;
-
+	lastkey = key;
 #ifdef PSP
 	if (Con_isSetOSKActive() && down) {
 		if (key == K_JOY1)
@@ -698,6 +794,8 @@ void Key_Event (int key, qboolean down)
 // update auto-repeat status
 	if (down)
 	{
+		oldkeytime = lastkeytime;
+		lastkeytime = Sys_FloatTime();
 		key_repeats[key]++;
 		if (key != K_BACKSPACE && key != K_PAUSE && key_repeats[key] > 1)
 		{
@@ -783,19 +881,41 @@ void Key_Event (int key, qboolean down)
 	|| (key_dest == key_console && !consolekeys[key])
 	|| (key_dest == key_game && ( !con_forcedup || !consolekeys[key] ) ) )
 	{
-		kb = keybindings[key];
-		if (kb)
+		if (oldkey == key && ((oldkeytime + 0.3) > lastkeytime))
 		{
-			if (kb[0] == '+')
-			{	// button commands add keynum as a parm
-				sprintf (cmd, "%s %i\n", kb, key);
-				Cbuf_AddText (cmd);
-			}
-			else
+			kb = dtbindings[key];
+			if (kb)
 			{
-				Cbuf_AddText (kb);
-				Cbuf_AddText ("\n");
+				if (kb[0] == '+')
+				{	// button commands add keynum as a parm
+					sprintf (cmd, kb, key);
+					Cbuf_AddText (cmd);
+				}
+				else
+				{
+					Cbuf_AddText (kb);
+					Cbuf_AddText ("\n");
+				}
 			}
+			oldkey = 0;
+			oldkeytime = 0;
+			lastkeytime = 0;
+			lastkey = 0;
+		}
+
+			kb = keybindings[key];
+			if (kb)
+			{
+				if (kb[0] == '+')
+				{	// button commands add keynum as a parm
+					sprintf (cmd, "%s %i\n", kb, key);
+					Cbuf_AddText (cmd);
+				}
+				else
+				{
+					Cbuf_AddText (kb);
+					Cbuf_AddText ("\n");
+				}
 		}
 		return;
 	}
