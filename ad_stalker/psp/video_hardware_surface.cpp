@@ -27,12 +27,16 @@ extern "C"
 {
 #include "../quakedef.h"
 }
-
+#ifdef PSP_VFPU
+#include <pspmath.h>
+#endif
 #include "clipping.hpp"
 
 using namespace quake;
 
 int			skytexturenum;
+int			last_lightmap_allocated; //ericw -- optimization: remember the index of the last lightmap AllocBlock stored a surf in
+
 /*
 #ifndef GL_RGBA4
 #define	GL_RGBA4	0
@@ -111,7 +115,11 @@ void R_AddDynamicLights (msurface_t *surf)
 		rad = cl_dlights[lnum].radius;
 		dist = DotProduct (cl_dlights[lnum].origin, surf->plane->normal) -
 				surf->plane->dist;
+		#ifdef PSP_VFPU
+		rad -= vfpu_fabsf(dist);
+		#else
 		rad -= fabsf(dist);
+		#endif
 		minlight = cl_dlights[lnum].minlight;
 		if (rad < minlight)
 			continue;
@@ -1487,6 +1495,7 @@ void R_MarkLeaves (void)
 */
 
 // returns a texture number and the position inside it
+/*
 static int AllocBlock (int w, int h, int *x, int *y)
 {
 	int		i, j;
@@ -1527,8 +1536,57 @@ static int AllocBlock (int w, int h, int *x, int *y)
 	Sys_Error ("AllocBlock: full");
 	return 0;
 }
+*/
+/*
+========================
+AllocBlock -- returns a texture number and the position inside it
+========================
+*/
+int AllocBlock (int w, int h, int *x, int *y)
+{
+	int		i, j;
+	int		best, best2;
+	int		texnum;
 
+	// ericw -- rather than searching starting at lightmap 0 every time,
+	// start at the last lightmap we allocated a surface in.
+	// This makes AllocBlock much faster on large levels (can shave off 3+ seconds
+	// of load time on a level with 180 lightmaps), at a cost of not quite packing
+	// lightmaps as tightly vs. not doing this (uses ~5% more lightmaps)
+	for (texnum=last_lightmap_allocated ; texnum<MAX_LIGHTMAPS ; texnum++, last_lightmap_allocated++)
+	{
+		best = BLOCK_HEIGHT;
 
+		for (i=0 ; i<BLOCK_WIDTH-w ; i++)
+		{
+			best2 = 0;
+
+			for (j=0 ; j<w ; j++)
+			{
+				if (allocated[texnum][i+j] >= best)
+					break;
+				if (allocated[texnum][i+j] > best2)
+					best2 = allocated[texnum][i+j];
+			}
+			if (j == w)
+			{	// this is a valid spot
+				*x = i;
+				*y = best = best2;
+			}
+		}
+
+		if (best + h > BLOCK_HEIGHT)
+			continue;
+
+		for (i=0 ; i<w ; i++)
+			allocated[texnum][*x + i] = best + h;
+
+		return texnum;
+	}
+
+	Sys_Error ("AllocBlock: full");
+	return 0; //johnfitz -- shut up compiler
+}
 mvertex_t	*r_pcurrentvertbase;
 model_t		*currentmodel;
 
@@ -1635,9 +1693,15 @@ static void BuildSurfaceDisplayList (msurface_t *fa)
 
 			// skip co-linear points
 			#define COLINEAR_EPSILON 0.001
+			#ifdef PSP_VFPU
+			if ((vfpu_fabsf( v1[0] - v2[0] ) <= COLINEAR_EPSILON) &&
+			(vfpu_fabsf( v1[1] - v2[1] ) <= COLINEAR_EPSILON) && 
+			(vfpu_fabsf( v1[2] - v2[2] ) <= COLINEAR_EPSILON))
+			#else
 			if ((fabsf( v1[0] - v2[0] ) <= COLINEAR_EPSILON) &&
 				(fabsf( v1[1] - v2[1] ) <= COLINEAR_EPSILON) && 
 				(fabsf( v1[2] - v2[2] ) <= COLINEAR_EPSILON))
+			#endif
 			{
 				for (j = i + 1; j < lnumverts; ++j)
 				{
@@ -1706,7 +1770,7 @@ void GL_BuildLightmaps (void)
 	memset (allocated, 0, sizeof(allocated));
 	
 	r_framecount = 1;		// no dlightcache
-
+	last_lightmap_allocated = 0;
 	if (!lightmap_textures)
 	{
 		lightmap_textures = 0;

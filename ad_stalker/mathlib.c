@@ -32,7 +32,6 @@ int nanmask = 255<<23;
 int  _mathlib_temp_int1, _mathlib_temp_int2, _mathlib_temp_int3;
 float _mathlib_temp_float1, _mathlib_temp_float2, _mathlib_temp_float3;
 vec3_t _mathlib_temp_vec1, _mathlib_temp_vec2, _mathlib_temp_vec3;
-
 /*-----------------------------------------------------------------*/
 //Below Function taken from PGE - Phoenix Game Engine - Greets IWN!
 float vfpu_ceil(float x) {
@@ -214,7 +213,7 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
 	m[1][2] = vf[1];
 	m[2][2] = vf[2];
 
-	memcpy( im, m, sizeof( im ) );
+	memcpy_vfpu( im, m, sizeof( im ) );
 
 	im[0][1] = m[1][0];
 	im[0][2] = m[2][0];

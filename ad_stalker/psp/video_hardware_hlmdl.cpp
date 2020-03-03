@@ -68,7 +68,6 @@ void QuaternionGLMatrix(float x, float y, float z, float w, vec4_t *GLM)
  */
 void QuaternionGLAngle(const vec3_t angles, vec4_t quaternion)
 {
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
     float	yaw = angles[2] * 0.5;
     float	pitch = angles[1] * 0.5;
     float	roll = angles[0] * 0.5;
@@ -87,7 +86,7 @@ void QuaternionGLAngle(const vec3_t angles, vec4_t quaternion)
     float	sinr = sin(roll);
     float	cosr = cos(roll);
 	#endif
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 
     quaternion[0] = sinr * cosp * cosy - cosr * sinp * siny;
     quaternion[1] = cosr * sinp * cosy + sinr * cosp * siny;
@@ -156,7 +155,7 @@ qboolean Mod_LoadHLModel (model_t *mod, void *buffer)
 	model = static_cast<hlmodelcache_t*>(Hunk_Alloc(sizeof(hlmodelcache_t)));
 
 	header = static_cast<hlmdl_header_t*>(Hunk_Alloc(com_filesize));
-	memcpy(header, buffer, com_filesize);
+	memcpy_vfpu(header, buffer, com_filesize);
 
 	if (header->version != 10)
 	{
@@ -203,7 +202,7 @@ qboolean Mod_LoadHLModel (model_t *mod, void *buffer)
 	if (!mod->cache.data)
 		return qfalse;
 
-	memcpy (mod->cache.data, model, total);
+	memcpy_vfpu (mod->cache.data, model, total);
 
 	Hunk_FreeToLowMark (start);
 	return qtrue;
@@ -508,7 +507,7 @@ void HL_SetupBones(hlmodel_t *model)
         }
         else
         {
-            memcpy(transform_matrix[i], matrix, 12 * sizeof(float));
+            memcpy_vfpu(transform_matrix[i], matrix, 12 * sizeof(float));
         }
     }
 }
