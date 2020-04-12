@@ -11,6 +11,9 @@
 	model_hl.h - halflife model structure
  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
+
+#include <cstring>      // memcpy
+
 #define HLPOLYHEADER	(('T' << 24) + ('S' << 16) + ('D' << 8) + 'I')	/* little-endian "IDST" */
 #define HLMDLHEADER		"IDST"
 
@@ -28,6 +31,13 @@
 #define MAXSTUDIOEVENTS		1024
 #define MAXSTUDIOPIVOTS		256
 #define MAXSTUDIOCONTROLLERS 8
+
+struct vertex
+{
+    float u, v;
+    unsigned int color;
+    float x, y, z;
+};
 
 /*
  -----------------------------------------------------------------------------------------------------------------------
@@ -293,9 +303,9 @@ typedef struct
     float	adjust[4];
 
     /* Static pointers */
-    hlmdl_header_t			*header;
-    hlmdl_tex_t				*textures;
-    hlmdl_bone_t			*bones;
+    hlmdl_header_t              *header;
+    hlmdl_tex_t                 *textures;
+    hlmdl_bone_t                *bones;
     hlmdl_bonecontroller_t		*bonectls;
 } hlmodel_t;
 
@@ -349,8 +359,8 @@ void	QuaternionGLMatrix(float x, float y, float z, float w, vec4_t *GLM);
 //void	UploadTexture(hlmdl_tex_t *ptexture, qbyte *data, qbyte *pal);
 
 /* HL drawing */
-qboolean Mod_LoadHLModel (model_t *mod, void *buffer);
-int	HL_CurSequence(hlmodel_t model);
-int	HL_NewSequence(hlmodel_t * model, int _inew);
-void	HL_SetController(hlmodel_t *model, int num, float value);
-void R_DrawHLModel(entity_t	*curent);
+qboolean    Mod_LoadHLModel (model_t *mod, void *buffer);
+int	        HL_CurSequence(hlmodel_t model);
+int	        HL_NewSequence(hlmodel_t * model, int _inew);
+void        HL_SetController(hlmodel_t *model, int num, float value);
+void        R_DrawHLModel(entity_t	*curent);

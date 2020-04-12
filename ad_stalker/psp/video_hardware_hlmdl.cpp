@@ -66,35 +66,111 @@ void QuaternionGLMatrix(float x, float y, float z, float w, vec4_t *GLM)
     QuaternionGLAngle - Convert a GL angle to a quaternion matrix
  =======================================================================================================================
  */
-void QuaternionGLAngle(const vec3_t angles, vec4_t quaternion)
+
+bool cmpf(float A, float B, float epsilon = 0.0001f)
 {
-    float	yaw = angles[2] * 0.5;
-    float	pitch = angles[1] * 0.5;
-    float	roll = angles[0] * 0.5;
-	#ifdef PSP_VFPU
-	float	siny = vfpu_sinf(yaw);
-    float	cosy = vfpu_cosf(yaw);
-    float	sinp = vfpu_sinf(pitch);
-    float	cosp = vfpu_cosf(pitch);
-    float	sinr = vfpu_sinf(roll);
-    float	cosr = vfpu_cosf(roll);
-	#else
-    float	siny = sin(yaw);
-    float	cosy = cos(yaw);
-    float	sinp = sin(pitch);
-    float	cosp = cos(pitch);
-    float	sinr = sin(roll);
-    float	cosr = cos(roll);
-	#endif
-
-
-    quaternion[0] = sinr * cosp * cosy - cosr * sinp * siny;
-    quaternion[1] = cosr * sinp * cosy + sinr * cosp * siny;
-    quaternion[2] = cosr * cosp * siny - sinr * sinp * cosy;
-    quaternion[3] = cosr * cosp * cosy + sinr * sinp * siny;
+    return (fabs(A - B) < epsilon);
 }
 
+void QuaternionGLAnglePSPVFPU(ScePspQuatMatrix *res, float x, float y, float z)
+{
+	__asm__ volatile (
+		/*
+		float	yaw = angles[2] * 0.5;
+		float	pitch = angles[1] * 0.5;
+		float	roll = angles[0] * 0.5; 
 
+		C002 = roll
+		C001 = pitch
+		C000 = yaw
+		*/
+		"mtv	%1, S000\n\t"				// S000 = x
+		"mtv	%2, S001\n\t"				// S001 = y
+		"mtv	%3, S002\n\t"				// S002 = z
+		"vfim.s S010, 0.5\n\t"				// S010 = 0.5
+		"vscl.t C000, C000, S010\n\t"		// x *= 0.5, y *= 0.5, z *= 0.5
+		/*
+		C012 = sin(roll)  = sinr = ?? z ?? =  0.998472 = x
+		C011 = sin(pitch) = sinp = ?? y ?? = -0.571133 = y
+		C010 = sin(yaw)   = siny = ?? x ?? = -0.997144 = z
+		 */
+		"vcst.s  S003, VFPU_2_PI\n\t"
+		"vscl.t  C010, C000, S003\n\t"
+		"vsin.t  C010, C010\n"
+		/*
+		C022 = cos(roll)  = cosr = ?? z ?? =  0.055265 = x
+		C021 = cos(pitch) = cosp = ?? y ?? =  0.820857 = y
+		C020 = cos(yaw)   = cosy = ?? x ?? =  0.075520 = z
+		 */
+		"vscl.t  C020, C000, S003\n\t"
+		"vcos.t  C020, C020\n"
+		/*
+		quaternion[0] = ( [sinr] * [cosp] * [cosy] ) - ( [cosr] * [sinp] * [siny] );  ( 0,0618963982076621 -  0,0314735194170603 )
+		quaternion[1] = ( [sinp] * [cosr] * [cosy] ) + ( [cosp] * [sinr] * [siny] );  (-0,0023836879993024‬ + -0,8172619451056806‬ )
+		quaternion[2] = ( [siny] * [cosr] * [cosp] ) - ( [cosy] * [sinr] * [sinp] );  (-0,0452351006300281 - -0,0430660585187635‬ )
+		quaternion[3] = ( [cosr] * [cosp] * [cosy] ) + ( [sinr] * [sinp] * [siny] );  ( 0,0034259392821696‬ +  0,5686316453341357 )
+		                  0        1        2            3        4        5
+		*/
+
+		/*
+										   C000
+		 0,998472 * 0,820857 * 0,075520 =  0,0618963982076621 = x
+		-0,571133 * 0,055265 * 0,075520 = -0,0023836879993024 = y
+		-0,997144 * 0,055265 * 0,820857 = -0,0452351006300281 = z
+		 0,055265 * 0,820857 * 0,075520 =  0,0034259392821696 = w
+		 */
+		"vmul.q C000, C010[x,y,z,1], C020[1,1,1,x]\n"	// 0
+		"vmul.q C000, C000, 		 C020[y,x,x,y]\n"	// 1
+		"vmul.q C000, C000, 		 C020[z,z,y,z]\n"	// 2
+		/*
+											 C030
+		 0,055265 * -0,571133 * -0,997144 =  0,0314735194170603 = x
+		 0,820857 *  0,998472 * -0,997144 = -0,8172619451056806 = y
+		 0,075520 *  0,998472 * -0,571133 = -0,0430660585187635 = z
+		 0,998472 * -0,571133 * -0,997144 =  0,5686316453341357 = w
+		 */
+		"vmul.q C030, C010[1,1,1,x], C020[x,y,z,1]\n"	// 3
+		"vmul.q C030, C030, 		 C010[y,x,x,y]\n"	// 4
+		"vmul.q C030, C030, 		 C010[z,z,y,z]\n"	// 5
+		/*
+		 0,0618963982076621 -  0,0314735194170603 =  0,0304228787906018‬
+		-0,0023836879993024‬ + -0,8172619451056806‬ = -0,819645633104983‬
+		-0,0452351006300281 - -0,0430660585187635‬ = -0,0021690421112646
+		 0,0034259392821696‬ +  0,5686316453341357 =  0,5720575846163053
+		 */
+		"vadd.q C020, C000[0,y,0,w], C030[0,y,0,w]\n"	// add
+		"vsub.q C000, C000[x,0,z,0], C030[x,0,z,0]\n"	// sub
+		"vadd.q C020, C020, C000[x,0,z,0]\n"
+		
+		//result
+		"usv.q  C020, %0\n\t"
+		:"=m"(*res) : "r"(x), "r"(y), "r"(z));
+
+	//vfpu_quaternion_normalize(res);
+}
+
+void QuaternionGLAngle(const vec3_t angles, vec4_t quaternion)
+{
+	#ifndef PSP_VFPU
+		float	yaw = angles[2] * 0.5;
+		float	pitch = angles[1] * 0.5;
+		float	roll = angles[0] * 0.5;
+		
+		float	siny = sin(yaw);
+		float	cosy = cos(yaw);
+		float	sinp = sin(pitch);
+		float	cosp = cos(pitch);
+		float	sinr = sin(roll);
+		float	cosr = cos(roll);
+
+		quaternion[0] = sinr * cosp * cosy - cosr * sinp * siny;
+		quaternion[1] = cosr * sinp * cosy + sinr * cosp * siny;
+		quaternion[2] = cosr * cosp * siny - sinr * sinp * cosy;
+		quaternion[3] = cosr * cosp * cosy + sinr * sinp * siny;
+	#else
+		QuaternionGLAnglePSPVFPU((ScePspQuatMatrix*)quaternion, angles[0], angles[1], angles[2]);
+	#endif
+}
 
 
 
@@ -105,7 +181,7 @@ int				g_chromeage[MAXSTUDIOBONES];	// last time chrome vectors were updated
 vec3_t			g_chromeup[MAXSTUDIOBONES];		// chrome vector "up" in bone reference frames
 vec3_t			g_chromeright[MAXSTUDIOBONES];	// chrome vector "right" in bone reference frames
 vec3_t          g_vright = { 50, 50, 0 };
-vec3_t			*g_pvlightvalues;
+vec3_t*			g_pvlightvalues;
 vec3_t			g_blightvec[MAXSTUDIOBONES];	// light vectors in bone reference frames
 vec3_t			g_lightvalues[MAXSTUDIOVERTS];	// light surface normals
 vec3_t			g_lightvec;						// light vector in model reference frame
@@ -142,13 +218,13 @@ qboolean Mod_LoadHLModel (model_t *mod, void *buffer)
     /*~~*/
     int i;
 
-	hlmodelcache_t *model;
-	hlmdl_header_t *header;
-	hlmdl_tex_t	*tex;
-	hlmdl_bone_t	*bones;
-	hlmdl_bonecontroller_t	*bonectls;
-    char				name[64],name2[64];
-	int					start, end, total;
+	hlmodelcache_t*				model;
+	hlmdl_header_t*				header;
+	hlmdl_tex_t*				tex;
+	hlmdl_bone_t*				bones;
+	hlmdl_bonecontroller_t*		bonectls;
+    char						name[64],name2[64];
+	int							start, end, total;
 	/*~~*/
 	start = Hunk_LowMark ();
 	//load the model into hunk
@@ -179,6 +255,7 @@ qboolean Mod_LoadHLModel (model_t *mod, void *buffer)
 
 	model->bonectls = (char *)bonectls - (char *)model;
    // Con_Printf(", bonectls\n");
+
 	int level = 0;
 	if (r_mipmaps.value > 0)
 		level = 3;
@@ -464,13 +541,9 @@ void HL_SetupBones(hlmodel_t *model)
     float					matrix[3][4];
     static vec3_t			positions[128];
     static vec4_t			quaternions[128];
-    hlmdl_sequencelist_t	*sequence = (hlmdl_sequencelist_t *) ((byte *) model->header + model->header->seqindex) +
-                                     model->sequence;
-    hlmdl_sequencedata_t	*sequencedata = (hlmdl_sequencedata_t *)
-                                         ((byte *) model->header + model->header->seqgroups) +
-                                         sequence->seqindex;
-    hlmdl_anim_t			*animation = (hlmdl_anim_t *)
-                                ((byte *) model->header + sequencedata->data + sequence->index);
+    hlmdl_sequencelist_t	*sequence = (hlmdl_sequencelist_t *) ((byte *) model->header + model->header->seqindex) + model->sequence;
+    hlmdl_sequencedata_t	*sequencedata = (hlmdl_sequencedata_t *) ((byte *) model->header + model->header->seqgroups) + sequence->seqindex;
+    hlmdl_anim_t			*animation = (hlmdl_anim_t *) ((byte *) model->header + sequencedata->data + sequence->index);
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     HL_CalcBoneAdj(model);	/* Deal with programmable controllers */
@@ -632,16 +705,16 @@ void Chrome (int *pchrome, int bone, vec3_t normal)
 void R_DrawHLModel(entity_t	*curent)
 {
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	hlmodelcache_t *modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(curent->model));
-	hlmodel_t model;
-    int						b, m, v;
-    short					*skins;
-    hlmdl_sequencelist_t	*sequence;
-    float				*lv;
-    float				lv_tmp;
-	int			lnum;
-	vec3_t		dist;
-	float		add;
+	hlmodelcache_t*			modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(curent->model));
+	hlmodel_t				model;
+    int						b,m,v;
+    short*					skins;
+    hlmdl_sequencelist_t*	sequence;
+    float*					lv;
+    float					lv_tmp;
+	int						lnum;
+	vec3_t					dist;
+	float					add;
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	//general model
 	model.header	= (hlmdl_header_t *)			((char *)modelc + modelc->header);
@@ -684,8 +757,10 @@ void R_DrawHLModel(entity_t	*curent)
 */
 	model.frame = curent->frame; // dr_mabuse1981: This makes your Halflife model frame based (only for sequence 0 atm but better than the old shit.)
 
-	if (sequence->motiontype)
+	if (sequence->motiontype) {
 		model.frame = sequence->numframes-1;
+	}
+	
 	sceGuDisable(GU_FOG);
     sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
     sceGuShadeModel(GU_SMOOTH);
@@ -694,7 +769,7 @@ void R_DrawHLModel(entity_t	*curent)
 
     sceGumPushMatrix();
 
-	for(int i = 0; i < 3; i++) m_angles[i] = currententity->angles[i];
+	std::memcpy(m_angles, currententity->angles, sizeof(vec3_t) * 3);
 
     R_LightPoint(curent->origin); // LordHavoc: lightcolor is all that matters from this
 
@@ -747,13 +822,30 @@ void R_DrawHLModel(entity_t	*curent)
 
 	g_pvlightvalues = &g_lightvalues[0];
 
-    /* Manipulate each mesh directly */
-    for(b = 0; b < model.header->numbodyparts; b++)
+	/**
+	 * Доп. переменные вынесены за цикл.
+	 */
+    hlmdl_model_t*	amodel;
+	byte*			bone;
+	byte*			nbone;
+	vec3_t*			verts;
+	vec3_t*			norms;
+	vec3_t			transformed[MAXSTUDIOVERTS];
+
+	/**
+	 * Manipulate each mesh directly
+	 * 
+	 * Количество частей у модели. У каждой модели могут быть отдельные чати.
+	 * Например:
+	 * - [0] тело
+	 * - [1] нож
+	 */
+    for(b = 0; b < model.header->numbodyparts; ++b)
     {
         /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-        hlmdl_bodypart_t	*bodypart = (hlmdl_bodypart_t *) ((byte *) model.header + model.header->bodypartindex) +
-                                     b;
+        hlmdl_bodypart_t*	bodypart = (hlmdl_bodypart_t *) ((byte *) model.header + model.header->bodypartindex) + b;
         int					bodyindex = (0 / bodypart->base) % bodypart->nummodels;
+		
 		if(( numLods = StudioCheckLOD(&model)) != 0 )
 		{
 			// set derived LOD
@@ -765,34 +857,39 @@ void R_DrawHLModel(entity_t	*curent)
 		}
 		bodyindex = curent->bodygroup;
 		
-        hlmdl_model_t		*amodel = (hlmdl_model_t *) ((byte *) model.header + bodypart->modelindex) + bodyindex;
-        byte				*bone = ((byte *) model.header + amodel->vertinfoindex);
-        byte				*nbone = ((byte *) model.header + amodel->norminfoindex);
-        vec3_t				*verts = (vec3_t *) ((byte *) model.header + amodel->vertindex);
-        vec3_t				*norms = (vec3_t *) ((byte *) model.header + amodel->normindex);
-        vec3_t				transformed[MAXSTUDIOVERTS];
+        amodel = (hlmdl_model_t *) ((byte *) model.header + bodypart->modelindex) + bodyindex;
+        bone = ((byte *) model.header + amodel->vertinfoindex);
+        nbone = ((byte *) model.header + amodel->norminfoindex);
+        verts = (vec3_t *) ((byte *) model.header + amodel->vertindex);
+        norms = (vec3_t *) ((byte *) model.header + amodel->normindex);
         /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
-		
-        for(v = 0; v < amodel->numverts; v++)			// Transform per the matrix 
+		// Transform per the matrix 
+        for(v = 0; v < amodel->numverts; ++v)
 		{
             VectorTransform(verts[v], transform_matrix[bone[v]], transformed[v]);
 		}
 		
  		lv = (float *)g_pvlightvalues;
-        for(m = 0; m < amodel->nummesh; m++)
+        for(m = 0; m < amodel->nummesh; ++m)
         {
 			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-            hlmdl_mesh_t	*mesh = (hlmdl_mesh_t *) ((byte *) model.header + amodel->meshindex) + m;
+            hlmdl_mesh_t*	mesh = (hlmdl_mesh_t *) ((byte *) model.header + amodel->meshindex) + m; // +m
             float			tex_w = 1.0f / model.textures[skins[mesh->skinindex]].w;
             float			tex_h = 1.0f / model.textures[skins[mesh->skinindex]].h;
             int             flags = model.textures[skins[mesh->skinindex]].flags;
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 			
-		    for (int c = 0; c < mesh->numnorms; c++, lv += 3, norms++, nbone++)
-			{
-                Lighting (&lv_tmp, *nbone, flags, (float *)norms);
+			for (int c = 0; c < mesh->numnorms; c++, lv += 3, ++norms, ++nbone)
+			{	
+				/**
+				 * Без понятия что именно делает функция Lighting,
+				 * но она сжирает почти 16FPS. Поэтому придется
+				 * ей пока посидеть в комментах.
+				 */
+                // Lighting (&lv_tmp, *nbone, flags, (float *)norms);
+				
 				// FIX: move this check out of the inner loop
 				if (flags & STUDIO_NF_CHROME)
 				 	Chrome(g_chrome[(float (*)[3])lv - g_pvlightvalues], *nbone, (float *)norms );
@@ -801,7 +898,7 @@ void R_DrawHLModel(entity_t	*curent)
 			    lv[1] = /*lv_tmp *  */g_lightcolor[1];
 			    lv[2] = /*lv_tmp *  */g_lightcolor[2];
 			}
-			
+
 			if (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME)
 		    {
    			    GL_Bind(model.textures[skins[mesh->skinindex]].i);
@@ -848,17 +945,9 @@ void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float
             prim = GU_TRIANGLE_STRIP;
 		}
 
-        // Allocate the vertices.
-		struct vertex
-		{
-			float u, v;
-            unsigned int color;
-			float x, y, z;
-		};
-
 		vec3_t	dir;
 
-		vertex* const out = static_cast<vertex*>(sceGuGetMemory(sizeof(vertex) * count));
+		vertex* out = static_cast<vertex*>(sceGuGetMemory(sizeof(vertex) * count));
 
 		for (int vertex_index = 0; vertex_index < count; ++vertex_index)
 		{
