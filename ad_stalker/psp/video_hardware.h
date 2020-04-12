@@ -195,6 +195,7 @@ extern	cvar_t	r_skyfog;
 extern  cvar_t	r_mipmaps;
 extern  cvar_t	r_mipmaps_func;
 extern  cvar_t	r_mipmaps_bias;
+extern  cvar_t	r_hl_render_dist;
 
 extern  cvar_t  r_i_model_animation;
 extern  cvar_t  r_i_model_transform;

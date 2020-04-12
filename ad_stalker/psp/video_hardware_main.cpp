@@ -86,7 +86,7 @@ int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 
 
 void R_MarkLeaves (void);
-cvar_t  r_skyclip = {"r_skyclip", "2560", qtrue}; 				// Adjust skybox clipping distance
+cvar_t  r_skyclip          = {"r_skyclip",          "2560",qtrue};		// Adjust skybox clipping distance
 cvar_t	r_norefresh        = {"r_norefresh",        "0"         };
 cvar_t	r_drawentities     = {"r_drawentities",     "1"         };
 cvar_t	r_drawviewmodel    = {"r_drawviewmodel",    "1"         };
@@ -111,6 +111,7 @@ cvar_t	r_tex_format       = {"r_tex_format",       "4",   qtrue};
 cvar_t	r_tex_res          = {"r_tex_res",          "0",   qtrue};
 cvar_t	r_particles_simple = {"r_particles_simple", "0",   qtrue};
 cvar_t	gl_keeptjunctions  = {"gl_keeptjunctions",  "0"         };
+cvar_t	r_hl_render_dist   = {"r_hl_render_dist",   "800", qtrue};		// dist to render HL models
 
 
 cvar_t	r_showtris            = {"r_showtris",                "0"};
@@ -143,6 +144,7 @@ cvar_t	r_part_lightning	= {"r_part_lightning",   "1",qtrue};
 cvar_t	r_part_flies		= {"r_part_flies",       "1",qtrue};
 cvar_t	r_part_muzzleflash  = {"r_part_muzzleflash", "1",qtrue};
 cvar_t	r_flametype	        = {"r_flametype",        "2",qtrue};
+
 /*
 cvar_t	gl_finish = {"gl_finish","0"};
 cvar_t	gl_clear = {"gl_clear","0"};

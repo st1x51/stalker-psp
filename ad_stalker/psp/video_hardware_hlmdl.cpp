@@ -34,19 +34,24 @@ extern"C"
 #include <pspmath.h>
 #endif
 using namespace std;
-extern list<int> mapTextureNameList;
 
-extern model_t	*loadmodel;
+extern list<int>	mapTextureNameList;
+extern model_t*		loadmodel;
+extern vec3_t		lightcolor; // LordHavoc: .lit support
+extern entity_t*	currententity;
+extern float*		shadedots;
+extern vec3_t		shadevector;
+extern float		shadelight, ambientlight;
 
-extern vec3_t lightcolor; // LordHavoc: .lit support
-extern entity_t	*currententity;
-extern float	*shadedots;
-extern vec3_t	shadevector;
-extern float	shadelight, ambientlight;
 #define NUMVERTEXNORMALS	162
 extern float r_avertexnormals[NUMVERTEXNORMALS][3];
 #define SHADEDOT_QUANT 16
 extern float	r_avertexnormal_dots[SHADEDOT_QUANT][256];
+
+bool cmpf(float A, float B, float epsilon = 0.0001f)
+{
+    return (fabs(A - B) < epsilon);
+}
 
 void QuaternionGLMatrix(float x, float y, float z, float w, vec4_t *GLM)
 {
@@ -66,11 +71,6 @@ void QuaternionGLMatrix(float x, float y, float z, float w, vec4_t *GLM)
     QuaternionGLAngle - Convert a GL angle to a quaternion matrix
  =======================================================================================================================
  */
-
-bool cmpf(float A, float B, float epsilon = 0.0001f)
-{
-    return (fabs(A - B) < epsilon);
-}
 
 void QuaternionGLAnglePSPVFPU(ScePspQuatMatrix *res, float x, float y, float z)
 {
@@ -702,10 +702,19 @@ void Chrome (int *pchrome, int bone, vec3_t normal)
     R_Draw_HL_AliasModel - main drawing function
 =======================================================================================================================
 */
-void R_DrawHLModel(entity_t	*curent)
+void R_DrawHLModel(entity_t	*current)
 {
+	vec3_t					dist;
+	
+	/**
+	 * Check to distance between current entity and camera view
+	 */
+	VectorSubtract(current->origin, r_refdef.vieworg, dist);
+	if (Length(dist) > (int)r_hl_render_dist.value)
+		return;
+
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	hlmodelcache_t*			modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(curent->model));
+	hlmodelcache_t*			modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(current->model));
 	hlmodel_t				model;
     int						b,m,v;
     short*					skins;
@@ -713,9 +722,9 @@ void R_DrawHLModel(entity_t	*curent)
     float*					lv;
     float					lv_tmp;
 	int						lnum;
-	vec3_t					dist;
 	float					add;
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 	//general model
 	model.header	= (hlmdl_header_t *)			((char *)modelc + modelc->header);
 	model.textures	= (hlmdl_tex_t *)				((char *)modelc + modelc->textures);
@@ -728,19 +737,19 @@ void R_DrawHLModel(entity_t	*curent)
 	model.frametime	= 0;
 
 	//HL_NewSequence(&model, cl.stats[STAT_SEQUENCE]);
-	HL_NewSequence(&model, curent->sequence);
+	HL_NewSequence(&model, current->sequence);
 
     skins = (short *) ((byte *) model.header + model.header->skins);
     sequence = (hlmdl_sequencelist_t *) ((byte *) model.header + model.header->seqindex) +
                                      model.sequence;
 
-	model.controller[0] = curent->bonecontrols[0];
-	model.controller[1] = curent->bonecontrols[1];
-	model.controller[2] = curent->bonecontrols[2];
-	model.controller[3] = curent->bonecontrols[3];
+	model.controller[0] = current->bonecontrols[0];
+	model.controller[1] = current->bonecontrols[1];
+	model.controller[2] = current->bonecontrols[2];
+	model.controller[3] = current->bonecontrols[3];
 	model.controller[4] = 0;//sin(cl.time)*127+127;
 
-   model.frametime += (cl.time /* - cl.lerpents[curent->keynum].framechange*/)*sequence->timing;
+   model.frametime += (cl.time /* - cl.lerpents[current->keynum].framechange*/)*sequence->timing;
 	
 	if (model.frametime>=1)
 	{
@@ -755,7 +764,7 @@ void R_DrawHLModel(entity_t	*curent)
 	if(model.frame >= sequence->numframes)
 		model.frame %= sequence->numframes;
 */
-	model.frame = curent->frame; // dr_mabuse1981: This makes your Halflife model frame based (only for sequence 0 atm but better than the old shit.)
+	model.frame = current->frame; // dr_mabuse1981: This makes your Halflife model frame based (only for sequence 0 atm but better than the old shit.)
 
 	if (sequence->motiontype) {
 		model.frame = sequence->numframes-1;
@@ -771,7 +780,7 @@ void R_DrawHLModel(entity_t	*curent)
 
 	std::memcpy(m_angles, currententity->angles, sizeof(vec3_t) * 3);
 
-    R_LightPoint(curent->origin); // LordHavoc: lightcolor is all that matters from this
+    R_LightPoint(current->origin); // LordHavoc: lightcolor is all that matters from this
 
 	for (lnum=0 ; lnum<MAX_DLIGHTS ; lnum++)
 	{
@@ -796,21 +805,21 @@ void R_DrawHLModel(entity_t	*curent)
     VectorScale(lightcolor, 1.0f / 200.0f, lightcolor);
 
     float an;
-	an = curent->angles[1]/180*M_PI;
+	an = current->angles[1]/180*M_PI;
 	shadevector[0] = vfpu_cosf(-an);
 	shadevector[1] = vfpu_sinf(-an);
 	shadevector[2] = 1;
 	VectorNormalize (shadevector);
 
-	R_BlendedRotateForEntity(curent, 0);
+	R_BlendedRotateForEntity(current, 0);
 	//lod
 	int	origin;
 	vec3_t	pl_origin;
 	entity_t *player;
 	player = &cl_entities[cl.viewentity];
-	int pl_origi = curent->origin -  player->origin;
-	int lodDist_x = (curent->origin[0] - player->origin[0]); //дистанция между игроком и моделью?
-	int lodDist_y = (curent->origin[1] - player->origin[1]); //дистанция между игроком и моделью?
+	int pl_origi = current->origin -  player->origin;
+	int lodDist_x = (current->origin[0] - player->origin[0]); //дистанция между игроком и моделью?
+	int lodDist_y = (current->origin[1] - player->origin[1]); //дистанция между игроком и моделью?
 	origin =lodDist_x * lodDist_x + lodDist_y * lodDist_y;
 	int lodDist = vfpu_sqrtf(origin);
 	int numLods;
@@ -855,7 +864,7 @@ void R_DrawHLModel(entity_t	*curent)
 			else
 				bodyindex = 0;
 		}
-		bodyindex = curent->bodygroup;
+		bodyindex = current->bodygroup;
 		
         amodel = (hlmdl_model_t *) ((byte *) model.header + bodypart->modelindex) + bodyindex;
         bone = ((byte *) model.header + amodel->vertinfoindex);
@@ -884,11 +893,11 @@ void R_DrawHLModel(entity_t	*curent)
 			for (int c = 0; c < mesh->numnorms; c++, lv += 3, ++norms, ++nbone)
 			{	
 				/**
-				 * Без понятия что именно делает функция Lighting,
-				 * но она сжирает почти 16FPS. Поэтому придется
-				 * ей пока посидеть в комментах.
+				 * TODO: Без понятия что именно делает функция
+				 * Lighting но она сжирает почти 16FPS. Поэтому
+				 * придется ей пока посидеть в комментах.
 				 */
-                // Lighting (&lv_tmp, *nbone, flags, (float *)norms);
+                Lighting (&lv_tmp, *nbone, flags, (float *)norms);
 				
 				// FIX: move this check out of the inner loop
 				if (flags & STUDIO_NF_CHROME)
@@ -944,8 +953,6 @@ void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float
 		{
             prim = GU_TRIANGLE_STRIP;
 		}
-
-		vec3_t	dir;
 
 		vertex* out = static_cast<vertex*>(sceGuGetMemory(sizeof(vertex) * count));
 
