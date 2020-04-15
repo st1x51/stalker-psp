@@ -189,8 +189,11 @@ vec3_t			g_lightcolor;
 int				g_smodels_total;				// cookie
 vec3_t          m_angles;
 
-void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float tex_h, float				*lv);
-void GL_Draw_HL_AliasChrome(short *order, vec3_t *transformed, float tex_w, float tex_h, float				*lv);
+/* Prototype func alias */
+void (*ALIAS_FUNC)(short*, vec3_t*, float, float, float*);
+
+void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float tex_h, float* lv);
+void GL_Draw_HL_AliasChrome(short *order, vec3_t *transformed, float tex_w, float tex_h, float* lv);
 
 /*
 =======================================================================================================================
@@ -699,9 +702,38 @@ void Chrome (int *pchrome, int bone, vec3_t normal)
 
 /*
 =======================================================================================================================
+    R_NormsHLUpdate - update normals early nbones
+=======================================================================================================================
+*/
+void R_NormsHLUpdate(hlmdl_mesh_t* mesh, vec3_t* norms, byte* nbone, int flags, float* lv)
+{
+	for (int c = 0; c < mesh->numnorms; c++, lv += 3, ++norms, ++nbone)
+	{
+		/**
+		 * TODO: Без понятия что именно делает функция
+		 * Lighting но она сжирает почти 16FPS. Поэтому
+		 * придется ей пока посидеть в комментах.
+		 */
+		//Lighting (&lv_tmp, *nbone, flags, (float *)norms);
+		
+		// FIX: move this check out of the inner loop
+		if (flags & STUDIO_NF_CHROME)
+			Chrome(g_chrome[(float (*)[3])lv - g_pvlightvalues], *nbone, (float *)norms );
+
+		lv[0] = g_lightcolor[0];
+		lv[1] = g_lightcolor[1];
+		lv[2] = g_lightcolor[2];
+	}
+}
+
+/*
+=======================================================================================================================
     R_Draw_HL_AliasModel - main drawing function
 =======================================================================================================================
 */
+
+int R_DrawHLModel_counter = 0;
+
 void R_DrawHLModel(entity_t	*current)
 {
 	vec3_t					dist;
@@ -709,9 +741,9 @@ void R_DrawHLModel(entity_t	*current)
 	/**
 	 * Check to distance between current entity and camera view
 	 */
-	VectorSubtract(current->origin, r_refdef.vieworg, dist);
-	if (Length(dist) > (int)r_hl_render_dist.value)
-		return;
+	//VectorSubtract(current->origin, r_refdef.vieworg, dist);
+	//if (Length(dist) > (int)r_hl_render_dist.value)
+	//	return;
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	hlmodelcache_t*			modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(current->model));
@@ -740,8 +772,7 @@ void R_DrawHLModel(entity_t	*current)
 	HL_NewSequence(&model, current->sequence);
 
     skins = (short *) ((byte *) model.header + model.header->skins);
-    sequence = (hlmdl_sequencelist_t *) ((byte *) model.header + model.header->seqindex) +
-                                     model.sequence;
+    sequence = (hlmdl_sequencelist_t *) ((byte *) model.header + model.header->seqindex) + model.sequence;
 
 	model.controller[0] = current->bonecontrols[0];
 	model.controller[1] = current->bonecontrols[1];
@@ -831,6 +862,18 @@ void R_DrawHLModel(entity_t	*current)
 
 	g_pvlightvalues = &g_lightvalues[0];
 
+	// Con_Printf("------------ [%d]_HL_Model::Start ------------\n", R_DrawHLModel_counter++);
+	// Con_Printf(
+	// 	"hlmodel_t\n\tsequence: %d\n\tframe: %d\n\tframetime: %f\n\tcontroller [%f,%f,%f,%f]\n\tadjust [%f,%f,%f,%f]\n\t\
+	// 	hlmdl_header_t* 0x%08x\n\thlmdl_tex_t* 0x%08x\n\thlmdl_bone_t* 0x%08x\n\thlmdl_bonecontroller_t* 0x%08x\n",
+	// 	model.sequence,
+	// 	model.frame,
+	// 	model.frametime,
+	// 	model.controller[0], model.controller[1], model.controller[2], model.controller[3],
+	// 	model.adjust[0], model.adjust[1], model.adjust[2], model.adjust[3],
+	// 	model.header, model.textures, model.bones, model.bonectls
+	// );
+
 	/**
 	 * Доп. переменные вынесены за цикл.
 	 */
@@ -855,6 +898,8 @@ void R_DrawHLModel(entity_t	*current)
         hlmdl_bodypart_t*	bodypart = (hlmdl_bodypart_t *) ((byte *) model.header + model.header->bodypartindex) + b;
         int					bodyindex = (0 / bodypart->base) % bodypart->nummodels;
 		
+		bodyindex = current->bodygroup;
+
 		if(( numLods = StudioCheckLOD(&model)) != 0 )
 		{
 			// set derived LOD
@@ -864,7 +909,6 @@ void R_DrawHLModel(entity_t	*current)
 			else
 				bodyindex = 0;
 		}
-		bodyindex = current->bodygroup;
 		
         amodel = (hlmdl_model_t *) ((byte *) model.header + bodypart->modelindex) + bodyindex;
         bone = ((byte *) model.header + amodel->vertinfoindex);
@@ -888,36 +932,14 @@ void R_DrawHLModel(entity_t	*current)
             float			tex_w = 1.0f / model.textures[skins[mesh->skinindex]].w;
             float			tex_h = 1.0f / model.textures[skins[mesh->skinindex]].h;
             int             flags = model.textures[skins[mesh->skinindex]].flags;
+
+			ALIAS_FUNC = (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME) ? &GL_Draw_HL_AliasChrome : &GL_Draw_HL_AliasFrame;
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 			
-			for (int c = 0; c < mesh->numnorms; c++, lv += 3, ++norms, ++nbone)
-			{	
-				/**
-				 * TODO: Без понятия что именно делает функция
-				 * Lighting но она сжирает почти 16FPS. Поэтому
-				 * придется ей пока посидеть в комментах.
-				 */
-                Lighting (&lv_tmp, *nbone, flags, (float *)norms);
-				
-				// FIX: move this check out of the inner loop
-				if (flags & STUDIO_NF_CHROME)
-				 	Chrome(g_chrome[(float (*)[3])lv - g_pvlightvalues], *nbone, (float *)norms );
+			R_NormsHLUpdate(mesh, norms, nbone, flags, lv);
 
-			    lv[0] = /*lv_tmp * */g_lightcolor[0];
-			    lv[1] = /*lv_tmp *  */g_lightcolor[1];
-			    lv[2] = /*lv_tmp *  */g_lightcolor[2];
-			}
-
-			if (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME)
-		    {
-   			    GL_Bind(model.textures[skins[mesh->skinindex]].i);
-				GL_Draw_HL_AliasChrome((short *) ((byte *) model.header + mesh->index), transformed, tex_w, tex_h, lv);
-			}
-		    else
-		    {
-                GL_Bind(model.textures[skins[mesh->skinindex]].i);
-				GL_Draw_HL_AliasFrame((short *) ((byte *) model.header + mesh->index), transformed, tex_w, tex_h, lv);
-			}
+			GL_Bind(model.textures[skins[mesh->skinindex]].i);
+			ALIAS_FUNC((short *) ((byte *) model.header + mesh->index), transformed, tex_w, tex_h, lv);
 		}
     }
     sceGuShadeModel(GU_SMOOTH);
@@ -959,7 +981,7 @@ void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float
 		for (int vertex_index = 0; vertex_index < count; ++vertex_index)
 		{
 			
-            float	*verts = transformed[order[0]];
+            float *verts = transformed[order[0]];
 
 			out[vertex_index].u = order[2] * tex_w;
 			out[vertex_index].v = order[3] * tex_h;
