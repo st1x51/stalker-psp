@@ -484,9 +484,23 @@ void _VectorCopy (vec3_t in, vec3_t out)
 
 void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross)
 {
+	#ifndef PSP_VFPU
 	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
 	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
 	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
+	#else
+	__asm__ volatile (
+		"lv.q    C000, %1\n"			// load v1
+		"lv.q    C010, %2\n"			// load v2
+		
+		"vmul.t  C020, C000[y,z,x], C010[z,x,y]\n"
+		"vmul.t  C030, C000[z,x,y], C010[y,z,x]\n"
+
+		"vsub.t  C000, C020, C030\n"
+
+		"sv.q    C000, %0\n"
+		: "+m"(*cross) : "m"(*v1), "m"(*v2));
+	#endif
 }
 
 vec_t Length(vec3_t v)
@@ -537,9 +551,18 @@ void VectorInverse (vec3_t v)
 
 void VectorScale (vec3_t in, vec_t scale, vec3_t out)
 {
+	#ifndef PSP_VFPU
 	out[0] = in[0]*scale;
 	out[1] = in[1]*scale;
 	out[2] = in[2]*scale;
+	#else
+	__asm__ volatile (
+       "lv.q    C000, %1\n"
+       "mtv     %2, S010\n"
+       "vscl.t  C000, C000, S010\n"
+       "sv.q    C000, %0\n"
+       : "=m"(*out) : "m"(*in), "r"(scale));
+	#endif
 }
 
 
