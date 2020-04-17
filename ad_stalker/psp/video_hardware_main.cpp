@@ -1351,7 +1351,7 @@ void R_DrawAliasModel (entity_t *e)
 {
 	int			i, j;
 	int			lnum;
-	vec3_t		dist;
+	vec3_t		dist_vLight;
 	float		add;
 	model_t		*clmodel;
 	vec3_t		mins, maxs;
@@ -1361,6 +1361,7 @@ void R_DrawAliasModel (entity_t *e)
 	float		s, t, an;
 	int			anim;
 	bool 		force_fullbright;
+
 
 	force_fullbright = false;
 	clmodel = currententity->model;
@@ -1403,8 +1404,8 @@ void R_DrawAliasModel (entity_t *e)
 		{
 			VectorSubtract (currententity->origin,
 							cl_dlights[lnum].origin,
-							dist);
-			add = cl_dlights[lnum].radius - Length(dist);
+							dist_vLight);
+			add = cl_dlights[lnum].radius - Length(dist_vLight);
 
 		    // LordHavoc: .lit support begin
 			/* LordHavoc: original code
@@ -1649,10 +1650,11 @@ R_DrawEntitiesOnList
 */
 void R_DrawEntitiesOnList (void)
 {
-	int		i;
-
 	if (!r_drawentities.value)
 		return;
+
+	int		i;
+	bool 	clipping;
 
 	// draw sprites seperately, because of alpha blending
 	for (i=0 ; i<cl_numvisedicts ; i++)
@@ -1662,17 +1664,22 @@ void R_DrawEntitiesOnList (void)
 		if (currententity == &cl_entities[cl.viewentity])
 	       currententity->angles[0] *= 0.3;
 
-        //currentmodel = currententity->model;
+        // currentmodel = currententity->model;
 		if(!(currententity->model))
 		{
 			R_DrawNullModel();
 			continue;
 		}
 
+		// clipping entities
+		clipping = quake::clipping::is_clipping_entity_bbox_required(currententity);
+		if (clipping) {
+			continue;
+		}
+
 		switch (currententity->model->type)
 		{
 		case mod_alias:
-
 			R_DrawAliasModel (currententity);
 			break;
 		case mod_halflife:

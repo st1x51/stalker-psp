@@ -16,7 +16,7 @@ VERSION		= 3_WIP
 SRC_DIR		= ..
 OBJ_DIR		= obj
 TARGET		= $(OBJ_DIR)/Quake
-PSP_EBOOT_TITLE	= ADQuake v$(VERSION)
+PSP_EBOOT_TITLE	= QGoldSrc v$(VERSION)
 PSP_EBOOT_ICON	= pics/icon.png
 PSP_EBOOT_PIC1	= pics/pic.png
 PSP_EBOOT_SFO	= $(OBJ_DIR)/PARAM.SFO
@@ -120,7 +120,10 @@ VIDEO_FLAGS = -DPSP_HARDWARE_VIDEO
 OBJS	= $(VIDEO_OBJS) $(COMMON_OBJS) $(GPROF_OBJS)
 
 # Compiler flags.
-CFLAGS	= -ffast-math -O3 -G0 $(GPROF_FLAGS) -Wall -Wno-trigraphs -Winline -DBREAKALL -DPSP -DPSP_VFPU $(VIDEO_FLAGS) -g -DEZXML_NOMMAP
+CFLAGS	= -ffast-math -O0 -g -G0 $(GPROF_FLAGS) -Wall -Wno-trigraphs -Winline -DBREAKALL -DPSP -DPSP_VFPU $(VIDEO_FLAGS) -DEZXML_NOMMAP
+
+# Includes.
+INCDIR		=  m33libs
 
 # Libs.
 IMG_LIBS    = -ljpeg -lpng -lz
@@ -129,6 +132,7 @@ AUDIO_LIBS	= -lpspaudiolib -lpspaudio -lpspmp3
 MISC_LIBS	= -lpsprtc -lpsppower
 STD_LIBS	= -lstdc++ -lm -lc 
 LIBS		=  $(GPROF_LIBS) $(GU_LIBS) $(AUDIO_LIBS) $(MISC_LIBS) $(IMG_LIBS) $(STD_LIBS)
+LIBDIR		=  m33libs
 
 # What else to clean.
 EXTRA_CLEAN	= $(foreach FILE,$(ZIP_FILE) Quake/EBOOT.PBP,$(DIST_DIR)/$(FILE))
@@ -142,8 +146,7 @@ install: $(INSTALL_DIR)/EBOOT.PBP
 # How to install.
 $(INSTALL_DIR)/EBOOT.PBP: $(PSP_EBOOT)
 	@echo Installing $(PSP_EBOOT) to $@...
-	@-mkdir -p $(dir $@)
-	@cp $(PSP_EBOOT) $@
+	@cp -f $(PSP_EBOOT) $@
 
 # How to build the distribution.
 distro: clean $(ZIP_FILE)
@@ -151,30 +154,27 @@ distro: clean $(ZIP_FILE)
 
 $(DIST_DIR)/Quake/EBOOT.PBP: $(PSP_EBOOT)
 	@echo Copying $< to $@...
-	@-mkdir -p $(dir $@)
-	@cp $< $@
+	@echo mkdir from $(shell pwd)
+	@cp -f $< $@
 
-$(ZIP_FILE): $(foreach FILE,$(DIST_FILES),$(DIST_DIR)/$(FILE))
-	@echo Creating $(DIST_DIR)/$(ZIP_FILE)...
-	@-rm -rf $(ZIP_FILE)
-	@cd $(DIST_DIR) && zip -r -q -9 -o $(ZIP_FILE) $(DIST_FILES)
+#$(ZIP_FILE): $(foreach FILE,$(DIST_FILES),$(DIST_DIR)/$(FILE))
+#	@echo Creating $(DIST_DIR)/$(ZIP_FILE)...
+#	@-rm -rf $(ZIP_FILE)
+#	@cd $(DIST_DIR) && zip -r -q -9 -o $(ZIP_FILE) $(DIST_FILES)
 
 # How to compile an S file.
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.S
-	@echo $(notdir $<)
-	@mkdir -p $(dir $@)
+	@echo compile an S file $(notdir $<)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 # How to compile a C file.
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@echo $(notdir $<)
-	@mkdir -p $(dir $@)
+	@echo compile a C file $(notdir $<)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 # How to compile a C++ file.
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo $(notdir $<)
-	@mkdir -p $(dir $@)
+	@echo compile a C++ file $(notdir $<)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Use the standard PSPSDK build stuff.

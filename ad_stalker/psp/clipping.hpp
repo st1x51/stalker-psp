@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstddef>
 
 struct glvert_s;
+struct entity_s;
 
 namespace quake
 {
@@ -40,6 +41,8 @@ namespace quake
 
 		// Is clipping required?
 		bool is_clipping_required(const struct glvert_s* vertices, std::size_t vertex_count);
+		bool is_clipping_entity_position_required(const struct entity_s* entity);
+		bool is_clipping_entity_bbox_required(const struct entity_s* entity);
 
 		// Clips a polygon.
 		void clip(

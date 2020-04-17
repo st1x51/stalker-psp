@@ -183,7 +183,7 @@ void GL_GetTexfSize (int *w, int *h, int index)
 
 void VID_SetPaletteTX();
 
-void GL_Bind (int texture_index)
+void GL_Bind(int texture_index)
 {
 	// Binding the currently bound texture?
 	if (currenttexture == texture_index)
@@ -220,10 +220,10 @@ void GL_Bind (int texture_index)
 
 	// Set the texture mode.
 	sceGuTexMode(texture.format, texture.mipmaps , 0, texture.swizzle);
-	
+
 	if (texture.mipmaps > 0 && r_mipmaps.value > 0)
 	{
-		sceGuTexSlope(0.4f); // the near from 0 slope is the lower (=best detailed) mipmap it uses
+		sceGuTexSlope(0.1f);
 		sceGuTexFilter(GU_LINEAR_MIPMAP_LINEAR, GU_LINEAR_MIPMAP_LINEAR);
 		sceGuTexLevelMode(int(r_mipmaps_func.value), r_mipmaps_bias.value); // manual slope setting
 	}

@@ -733,7 +733,6 @@ void R_NormsHLUpdate(hlmdl_mesh_t* mesh, vec3_t* norms, byte* nbone, int flags, 
 */
 
 int R_DrawHLModel_counter = 0;
-
 void R_DrawHLModel(entity_t	*current)
 {
 	vec3_t					dist;
@@ -741,9 +740,9 @@ void R_DrawHLModel(entity_t	*current)
 	/**
 	 * Check to distance between current entity and camera view
 	 */
-	//VectorSubtract(current->origin, r_refdef.vieworg, dist);
-	//if (Length(dist) > (int)r_hl_render_dist.value)
-	//	return;
+	VectorSubtract(current->origin, r_refdef.vieworg, dist);
+	if (Length(dist) > (int)r_hl_render_dist.value)
+		return;
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	hlmodelcache_t*			modelc = static_cast<hlmodelcache_t*>(Mod_Extradata(current->model));
@@ -753,6 +752,7 @@ void R_DrawHLModel(entity_t	*current)
     hlmdl_sequencelist_t*	sequence;
     float*					lv;
     float					lv_tmp;
+	vec3_t					distLight;
 	int						lnum;
 	float					add;
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -780,7 +780,7 @@ void R_DrawHLModel(entity_t	*current)
 	model.controller[3] = current->bonecontrols[3];
 	model.controller[4] = 0;//sin(cl.time)*127+127;
 
-   model.frametime += (cl.time /* - cl.lerpents[current->keynum].framechange*/)*sequence->timing;
+	model.frametime += (cl.time /* - cl.lerpents[current->keynum].framechange*/)*sequence->timing;
 	
 	if (model.frametime>=1)
 	{
@@ -819,8 +819,8 @@ void R_DrawHLModel(entity_t	*current)
 		{
 			VectorSubtract (currententity->origin,
 							cl_dlights[lnum].origin,
-							dist);
-			add = cl_dlights[lnum].radius - Length(dist);
+							distLight);
+			add = cl_dlights[lnum].radius - Length(distLight);
 
 			// LordHavoc: .lit support begin
 			if (add > 0)
@@ -932,7 +932,7 @@ void R_DrawHLModel(entity_t	*current)
             float			tex_w = 1.0f / model.textures[skins[mesh->skinindex]].w;
             float			tex_h = 1.0f / model.textures[skins[mesh->skinindex]].h;
             int             flags = model.textures[skins[mesh->skinindex]].flags;
-
+			
 			ALIAS_FUNC = (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME) ? &GL_Draw_HL_AliasChrome : &GL_Draw_HL_AliasFrame;
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 			
