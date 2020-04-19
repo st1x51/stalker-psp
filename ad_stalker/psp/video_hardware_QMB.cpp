@@ -257,7 +257,12 @@ static byte *ColorForParticle (part_type_t type)
 		color[0] = color[1] = color[2] = 128;
 		color[3] = 128;
 		break;
-
+	case p_smoke_green:
+		color[0] = 150;
+		color[1] = 240;
+		color[2] = 0;
+		color[3] = 128;
+		break;
 	case p_q3rocketsmoke:
 	case p_q3grenadesmoke:
 		color[0] = color[1] = color[2] = 160;
@@ -605,6 +610,7 @@ void QMB_InitParticles (void)
 	ADD_PARTICLE_TYPE(p_inferno_trail,	pd_billboard,		GU_SRC_ALPHA, GU_ONE_MINUS_DST_ALPHA,					      ptex_generic,	204, 0, 0,		 pm_die,		 0);
 	ADD_PARTICLE_TYPE(p_trailpart,		pd_billboard,		GU_SRC_ALPHA, GU_ONE_MINUS_DST_ALPHA,					ptex_generic,	230, 0, 0,		 pm_static,	     0);
 	ADD_PARTICLE_TYPE(p_smoke,			pd_billboard,		GU_SRC_ALPHA, GU_ONE_MINUS_DST_ALPHA,					ptex_smoke,		140, 3, 0,		 pm_normal,	     0);
+	ADD_PARTICLE_TYPE(p_smoke_green,	pd_billboard,		GU_SRC_ALPHA, GU_ONE_MINUS_DST_ALPHA,					ptex_smoke,		140, 3, 0,		 pm_normal,	     0);
 	ADD_PARTICLE_TYPE(p_dpfire,			pd_billboard,		GU_SRC_ALPHA, GU_ONE_MINUS_DST_ALPHA,					ptex_dpsmoke,	144, 0, 0,		 pm_die,		 0);
 
 //	loading_cur_step[loading_level]++;
@@ -746,7 +752,13 @@ void AddParticle (part_type_t type, vec3_t org, int count, float size, float tim
 				p->vel[j] = ((rand() % 10) - 5) / 20.0;
 			p->growth = 4.5;
 			break;
-
+		case p_smoke_green:		
+			for (j=0 ; j<3 ; j++)
+				p->org[j] = org[j] + ((rand() & 31) - 16) / 2.0;
+			for (j=0 ; j<3 ; j++)
+				p->vel[j] = ((rand() % 10) - 5) / 20.0;
+			p->growth = 4.5;
+			break;
 		case p_fire:
 		case p_fire2:
 			VectorCopy (org, p->org);
@@ -1017,7 +1029,9 @@ __inline static void AddParticleTrail (part_type_t type, vec3_t start, vec3_t en
 	case p_smoke:
 		count = length / 3.8;
 		break;
-
+	case p_smoke_green:
+		count = length / 3.8;
+		break;
 	case p_dpsmoke:
 		count = length / 2.5;
 		break;
@@ -1098,7 +1112,15 @@ __inline static void AddParticleTrail (part_type_t type, vec3_t start, vec3_t en
 			p->growth = 4.5;
 			p->rotspeed = (rand() & 63) + 96;
 			break;
-
+		case p_smoke_green:
+			VectorCopy (point, p->org);
+			for (j=0 ; j<3 ; j++)
+				p->org[j] += ((rand() & 7) - 4) / 8.0;
+			p->vel[0] = p->vel[1] = 0;
+			p->vel[2] = rand() & 3;
+			p->growth = 4.5;
+			p->rotspeed = (rand() & 63) + 96;
+			break;
         case p_q3rocketsmoke:
 		case p_q3grenadesmoke:
 			VectorCopy (point, p->org);

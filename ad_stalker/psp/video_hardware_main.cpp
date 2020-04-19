@@ -2163,6 +2163,8 @@ void R_RenderScene (void)
 	
 	Fog_EnableGFog (); //johnfitz
 
+	R_DrawSkyDome();
+	
 	R_DrawWorld ();		// adds static entities to the list
 
 	S_ExtraUpdate ();	// don't let sound get messed up if going slow

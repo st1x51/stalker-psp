@@ -435,5 +435,183 @@ namespace quake
 			*clipped_vertices		= src;
 			*clipped_vertex_count	= vertex_count;
 		}
+
+		static inline glvert_t calculate_intersection_col(const plane_type& plane, const glvert_t& v1, const glvert_t& v2)
+		{
+			// Work out the difference between the vertices.
+			const glvert_t delta =
+			{
+				{
+					v2.st[0] - v1.st[0],
+					v2.st[1] - v1.st[1]
+				},
+				//v2.color,	/* PADDED MAP VERTEX */
+				{
+					v2.xyz[0] - v1.xyz[0],
+					v2.xyz[1] - v1.xyz[1],
+					v2.xyz[2] - v1.xyz[2]
+				}
+			};
+
+			// Horrible math.
+			const float top = (plane.x * v1.xyz[0]) + (plane.y * v1.xyz[1]) + (plane.z * v1.xyz[2]) + plane.w;
+			const float bottom = (plane.x * delta.xyz[0]) + (plane.y * delta.xyz[1]) + (plane.z * delta.xyz[2]);
+			const float time = -top / bottom;
+
+
+#if CLIPPING_DEBUGGING
+			if (time < -0.001f || time > 1.001f)
+			{
+				Sys_Error("time out of range,\n\t%f,\n\tv1 (%f %f %f)\n\tv2 (%f %f %f)\n\tdelta (%f %f %f)",
+					time,
+					v1.xyz[0], v1.xyz[1], v1.xyz[2],
+					v2.xyz[0], v2.xyz[1], v2.xyz[2],
+					delta.xyz[0], delta.xyz[1], delta.xyz[2]
+					);
+			}
+#endif
+			/*
+			byte r = ((0x000000ff & v1.color)) + (time)* ((int)((0x000000ff & v2.color)) - (int)((0x000000ff & v1.color)));
+			byte g = ((0x0000ff00 & v1.color) >> 8) + (time) * ((int)((0x0000ff00 & v2.color) >> 8) - (int)((0x0000ff00 & v1.color) >> 8));
+			byte b = ((0x00ff0000 & v1.color) >> 16) + (time) * ((int)((0x00ff0000 & v2.color) >> 16) - (int)((0x00ff0000 & v1.color) >> 16));
+			byte a = ((0xff000000 & v1.color) >> 24) + (time) * ((int)((0xff000000 & v2.color) >> 24) - (int)((0xff000000 & v1.color) >> 24));
+			unsigned int benis = (a << 24) + (b << 16) + (g << 8) + r;
+			*/
+			// Interpolate a new vertex.
+			const glvert_t	v =
+			{
+				{
+					v1.st[0] + time * delta.st[0],
+					v1.st[1] + time * delta.st[1]
+				},
+				//((byte)(((0xff000000 & v1.color) >> 24) + (time)* ((int)((0xff000000 & v2.color) >> 24) - (int)((0xff000000 & v1.color) >> 24))) << 24) +
+				//((byte)(((0x00ff0000 & v1.color) >> 16) + (time)* ((int)((0x00ff0000 & v2.color) >> 16) - (int)((0x00ff0000 & v1.color) >> 16))) << 16) +
+				//((byte)(((0x0000ff00 & v1.color) >> 8) + (time)* ((int)((0x0000ff00 & v2.color) >> 8) - (int)((0x0000ff00 & v1.color) >> 8))) << 8) +
+				//(byte)(((0x000000ff & v1.color)) + (time)* ((int)((0x000000ff & v2.color)) - (int)((0x000000ff & v1.color)))),
+				{
+					v1.xyz[0] + time * delta.xyz[0],
+					v1.xyz[1] + time * delta.xyz[1],
+					v1.xyz[2] + time * delta.xyz[2]
+				},
+			};
+
+			return v;
+		}
+
+		// Clips a polygon against a plane.
+		// http://hpcc.engin.umich.edu/CFD/users/charlton/Thesis/html/node90.html
+		static void clip_to_plane_col(
+			const plane_type& plane,
+			const glvert_t* const unclipped_vertices,
+			std::size_t const unclipped_vertex_count,
+			glvert_t* const clipped_vertices,
+			std::size_t* const clipped_vertex_count)
+		{
+			// Set up.
+			const glvert_t* const	last_unclipped_vertex = &unclipped_vertices[unclipped_vertex_count];
+
+			// For each polygon edge...
+			const glvert_t*	s = unclipped_vertices;
+			const glvert_t* p = s + 1;
+			glvert_t*		clipped_vertex = clipped_vertices;
+			do
+			{
+				// Check both nodal values, s and p. If the point values are:
+				const bool s_inside = point_in_front_of_plane(s->xyz, plane);
+				const bool p_inside = point_in_front_of_plane(p->xyz, plane);
+				if (s_inside)
+				{
+					if (p_inside)
+					{
+						// 1. Inside-inside, append the second node, p.
+						*clipped_vertex++ = *p;
+					}
+					else
+					{
+						// 2. Inside-outside, compute and append the
+						// intersection, i of edge sp with the clipping plane.
+						*clipped_vertex++ = calculate_intersection_col(plane, *s, *p);
+					}
+				}
+				else
+				{
+					if (p_inside)
+					{
+						// 4. Outside-inside, compute and append the
+						// intersection i of edge sp with the clipping plane,
+						// then append the second node p. 
+						*clipped_vertex++ = calculate_intersection_col(plane, *s, *p);
+						*clipped_vertex++ = *p;
+					}
+					else
+					{
+						// 3. Outside-outside, no operation.
+					}
+				}
+
+				// Next edge.
+				s = p++;
+				if (p == last_unclipped_vertex)
+				{
+					p = unclipped_vertices;
+				}
+			} while (s != unclipped_vertices);
+
+			// Return the data.
+			*clipped_vertex_count = clipped_vertex - clipped_vertices;
+		}
+
+		// Clips a polygon against the frustum.
+		void clip_col(
+			const struct glvert_s* unclipped_vertices,
+			std::size_t unclipped_vertex_count,
+			const struct glvert_s** clipped_vertices,
+			std::size_t* clipped_vertex_count)
+		{
+			// No vertices to clip?
+			if (!unclipped_vertex_count)
+			{
+				// Error.
+				Sys_Error("Calling clip with zero vertices");
+			}
+
+			// Set up constants.
+			const plane_type* const	last_plane = &clipping_frustum[plane_count];
+
+			// Set up the work buffer pointers.
+			const glvert_t*			src = unclipped_vertices;
+			glvert_t*				dst = work_buffer[0];
+			std::size_t				vertex_count = unclipped_vertex_count;
+
+			// For each frustum plane...
+			for (const plane_type* plane = &clipping_frustum[0]; plane != last_plane; ++plane)
+			{
+				// Clip the poly against this frustum plane.
+				clip_to_plane_col(*plane, src, vertex_count, dst, &vertex_count);
+
+				// No vertices left to clip?
+				if (!vertex_count)
+				{
+					// Quit early.
+					*clipped_vertex_count = 0;
+					return;
+				}
+
+				// Use the next pair of buffers.
+				src = dst;
+				if (dst == work_buffer[0])
+				{
+					dst = work_buffer[1];
+				}
+				else
+				{
+					dst = work_buffer[0];
+				}
+			}
+
+			// Fill in the return data.
+			*clipped_vertices = src;
+			*clipped_vertex_count = vertex_count;
+		}
 	}
 }

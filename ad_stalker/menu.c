@@ -764,6 +764,7 @@ void M_Maps_Key (int k)
 		m_state = m_none;
 		key_dest = key_game;
 		Cbuf_AddText (va("map %s\n", maps_list[maps_cursor+maps_stage]));
+		loadingScreen  = 1;//do i need this here?
 		return;
 
 	case K_UPARROW:
@@ -1497,11 +1498,11 @@ void M_AdjustSliders (int dir)
 				Cvar_SetValue ("viewsize", scr_viewsize.value);
 				break;
 			case OPT_LODDIST:	
-				r_loddist.value += dir * 128;
+				r_loddist.value += dir * 256;
 				if (r_loddist.value < 256)
 					r_loddist.value = 256;
-				if (r_loddist.value > 1024)
-					r_loddist.value = 1024;
+				if (r_loddist.value > 2048)
+					r_loddist.value = 2048;
 				Cvar_SetValue ("r_loddist", r_loddist.value);
 				break;
 			case OPT_MUSICVOL:	// music volume

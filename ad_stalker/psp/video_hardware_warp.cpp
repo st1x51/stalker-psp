@@ -26,7 +26,8 @@ extern "C"
 #include "../quakedef.h"
 }
 #include "clipping.hpp"
-
+int skydome;
+char skydome_name[32] = "";
 using namespace quake;
 
 extern	model_t	*loadmodel;
@@ -593,7 +594,64 @@ void Sky_LoadSkyBox (char *name)
     }
     strcpy(skybox_name, name);
 }
+/*
+==================
+R_LoadSkyDome
+Based on fitzquake implementation, modified by MDave.
+==================
+*/
+void Sky_LoadSkyDome(char *name)
+{
+	int		i, mark;
+	byte    *f;
+	char	filename[64], skypalette[64];
+	bool nonefound = true;
 
+	if (strcmp(skydome_name, name) == 0)
+		return; //no change
+
+	if (skydome)
+	{
+		//Con_Printf("Sky unloaded\n");
+		GL_UnloadTexture(skydome);
+		skydome = NULL;
+	}
+
+	if (name[0] == 0)
+	{
+		skydome_name[0] = 0;
+		return;
+	}
+
+	//VID_InitPaleteSKY(host_basepal);
+
+	mark = Hunk_LowMark();
+	sprintf(filename, "sky/%s.lmp", name);
+	f = static_cast<byte*>(COM_LoadHunkFile(filename));
+
+	if (f)
+	{
+		//skydome = GL_LoadTexture("sky", 128, 128, f + 8,1, qfalse, GU_LINEAR, 0);
+		skydome = loadtextureimage("sky/sky", 0, 0, qfalse, GU_LINEAR);
+		nonefound = false;
+	}
+	else
+	{
+		Con_Printf("Couldn't load %s\n", name);
+	}
+
+	Hunk_FreeToLowMark(mark);
+
+	if (nonefound)
+	{
+		GL_UnloadTexture(skydome);
+		skydome = NULL;
+		skydome_name[0] = 0;
+		return;
+	}
+
+	strcpy(skydome_name, name);
+}
 /*
 =================
 Sky_NewMap
@@ -606,12 +664,14 @@ void Sky_NewMap (void)
 
     //purge old sky textures
     UnloadSkyTexture ();
-
+	if (skydome && skydome != 19)
+		GL_UnloadTexture(skydome);
+	skydome = NULL;
 	//
 	// initially no sky
 	//
 	Sky_LoadSkyBox (""); //not used
-
+	Sky_LoadSkyDome("");
 	//
 	// read worldspawn (this is so ugly, and shouldn't it be done on the server?)
 	//
@@ -657,6 +717,9 @@ void Sky_NewMap (void)
             Sky_LoadSkyBox(value);
 	    else if (!strcmp("qlsky", key)) //quake lives
             Sky_LoadSkyBox(value);
+		//else if (!strcmp("", skybox_name))
+		Sky_LoadSkyDome("cloud");
+	
 	}
 }
 
@@ -1071,7 +1134,185 @@ void R_DrawSkyBox (void)
 }
 
 //===============================================================
+/*
+==============
+R_DrawSkyDome
+==============
+*/
 
+/*
+glvert_t skydome_verts[13] = {
+		{ { 0.5, 0.5 }, { 0.0, 0.0, 5000 } },
+
+		{ { 0.5, 0.75 }, { 0.0, 6700, 4000 } },
+		{ { 0.25, 0.5 }, { -6700, 0.0, 4000 } },
+		{ { 0.5, 0.25 }, { 0.0, -6700, 4000 } },
+		{ { 0.75, 0.5 }, { 6700, 0.0, 4000 } },
+
+		{ { 0.5, 0.999 }, { 0.0, 13500, 0.0 } },
+		{ { 0.13, 0.87 }, { -10000, 10000, 0.0 } },
+		{ { 0, 0.5 }, { -13500, 0.0, 0.0 } },
+		{ { 0.13, 0.13 }, { -10000, -10000, 0.0 } },
+
+		{ { 0.5, 0 }, { 0.0, -13500, 0.0 } },
+		{ { 0.87, 0.13 }, { 10000, -10000, 0.0 } },
+		{ { 0.999, 0.5 }, { 13500, 0.0, 0.0 } },
+		{ { 0.87, 0.87 }, { 10000, 10000, 0.0 } }
+};
+
+unsigned char skydome_indices[48] = {
+	//center diamond
+	0,1,2,
+	0,2,3,
+	0,3,4,
+	0,4,1,
+	//diagonals
+	2,1,6,
+	3,2,8,
+	4,3,10,
+	4,1,12,
+	//rest
+	1,6,5,
+	1,5,12,
+	2,8,7,
+	2,7,6,
+	3,10,9,
+	3,9,8,
+	4,12,11,
+	4,11,10
+};
+*/
+
+typedef struct col_vert_s {
+	vec2_t st;
+	int color;
+	vec3_t xyz;
+} col_vert_t;
+
+col_vert_t skydome_verts[48] = {
+					  /*0x80808080*/									 /*0x45454545*/
+		{ { 0.5, 0.5 }, 0x80808080, { 0.0, 0.0, 500 } }, { { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } }, { { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } },
+		{ { 0.5, 0.5 }, 0x80808080, { 0.0, 0.0, 500 } }, { { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } }, { { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } },
+		{ { 0.5, 0.5 }, 0x80808080, { 0.0, 0.0, 500 } }, { { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } }, { { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } },
+		{ { 0.5, 0.5 }, 0x80808080, { 0.0, 0.0, 500 } }, { { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } }, { { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } },
+
+		{ { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } }, { { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } }, { { 0.13, 0.87 }, 0x00000000, { -1000, 1000, 0.0 } },
+		{ { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } }, { { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } }, { { 0.13, 0.13 }, 0x4000AAFF, { -1000, -1000, 0.0 } },
+		{ { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } }, { { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } }, { { 0.87, 0.13 }, 0x4000AAFF, { 1000, -1000, 0.0 } },
+		{ { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } }, { { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } }, { { 0.87, 0.87 }, 0x00000000, { 1000, 1000, 0.0 } },
+
+		{ { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } }, { { 0.13, 0.87 }, 0x00000000, { -1000, 1000, 0.0 } }, { { 0.5, 0.999 }, 0x00000000, { 0.0, 1350, 0.0 } },
+		{ { 0.5, 0.75 }, 0x45454545, { 0.0, 670, 400 } }, { { 0.5, 0.999 }, 0x00000000, { 0.0, 1350, 0.0 } }, { { 0.87, 0.87 }, 0x00000000, { 1000, 1000, 0.0 } },
+
+		{ { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } }, { { 0.13, 0.13 }, 0x4000AAFF, { -1000, -1000, 0.0 } }, { { 0, 0.5 }, 0x00000000, { -1350, 0.0, 0.0 } },
+		{ { 0.25, 0.5 }, 0x45454545, { -670, 0.0, 400 } }, { { 0, 0.5 }, 0x00000000, { -1350, 0.0, 0.0 } }, { { 0.13, 0.87 }, 0x00000000, { -1000, 1000, 0.0 } },
+
+		{ { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } }, { { 0.87, 0.13 }, 0x4000AAFF, { 1000, -1000, 0.0 } }, { { 0.5, 0 }, 0x8040FFFF, { 0.0, -1350, 0.0 } },
+		{ { 0.5, 0.25 }, 0x454585EE, { 0.0, -670, 400 } }, { { 0.5, 0 }, 0x8040FFFF, { 0.0, -1350, 0.0 } }, { { 0.13, 0.13 }, 0x4000AAFF, { -1000, -1000, 0.0 } },
+
+		{ { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } }, { { 0.87, 0.87 }, 0x00000000, { 1000, 1000, 0.0 } }, { { 0.999, 0.5 }, 0x00000000, { 1350, 0.0, 0.0 } },
+		{ { 0.75, 0.5 }, 0x45454545, { 670, 0.0, 400 } }, { { 0.999, 0.5 }, 0x00000000, { 1350, 0.0, 0.0 } }, { { 0.87, 0.13 }, 0x4000AAFF, { 1000, -1000, 0.0 } }
+};
+
+
+void R_DrawSkyDome(void)
+{
+	
+	int		i, j;
+	//float   r, g, b, a;
+
+	sceGuDisable(GU_CLIP_PLANES);
+
+	sceGuDisable(GU_CULL_FACE);
+	
+	//sceGuDisable(GU_DEPTH_TEST);
+	//sceGuDepthMask(1);
+	//sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
+	sceGuDisable(GU_SCISSOR_TEST);
+	//sceGuColor(0x70707070);
+
+	GL_Bind(skydome);
+
+	//vertex type
+	sceGuDrawArray(GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF, 0, 0, 0);
+
+	for (i = 0; i < 16; i++)
+	{
+		// Allocate memory for this polygon.
+		const int		unclipped_vertex_count = 3;
+		glvert_t* const	verts =
+			static_cast<glvert_t*>(sceGuGetMemory(sizeof(glvert_t) * unclipped_vertex_count));
+		//glvert_t verts[3];// = glvert_t[3];
+
+		for (j = 0; j < 3; j++)
+		{
+			verts[j].st[0] = skydome_verts[i*3 + j].st[0] * 1.25 + (cl.time * 0.0075);
+			verts[j].st[1] = skydome_verts[i*3 + j].st[1] * 1.25 + (cl.time * 0.005);
+
+			verts[j].xyz[0] = skydome_verts[i * 3 + j].xyz[0] + r_refdef.vieworg[0];
+			verts[j].xyz[1] = skydome_verts[i * 3 + j].xyz[1] + r_refdef.vieworg[1];
+			verts[j].xyz[2] = skydome_verts[i * 3 + j].xyz[2] + r_refdef.vieworg[2];
+
+			//verts[j].color = 0x70707070;	/* PADDED MAP VERTEX */
+			//verts[j].color = skydome_verts[i * 3 + j].color;
+		}
+		
+		if (clipping::is_clipping_required(
+			verts,
+			unclipped_vertex_count))
+		{
+			const glvert_t*	clipped_vertices;
+			std::size_t		clipped_vertex_count;
+			
+			
+			clipping::clip_col(
+				verts,
+				unclipped_vertex_count,
+				&clipped_vertices,
+				&clipped_vertex_count);
+			
+			if (clipped_vertex_count)
+			{
+				const std::size_t buffer_size = clipped_vertex_count * sizeof(glvert_t);
+				glvert_t* const display_list_vertices = static_cast<glvert_t*>(sceGuGetMemory(buffer_size));
+				memcpy(display_list_vertices, clipped_vertices, buffer_size);
+
+				sceGuDrawArray(
+					GU_TRIANGLE_FAN, 
+					0 
+					, clipped_vertex_count, 0, display_list_vertices);
+			}
+		}
+		
+		
+		else
+		{
+			sceGuDrawArray(
+				GU_TRIANGLE_FAN,
+				0 
+				,unclipped_vertex_count, 0, verts);
+		}
+	
+				// Draw the vertices.
+		//            sceGuTexWrap(GU_REPEAT, GU_REPEAT);
+		//sceGuDepthRange(0, 65535);
+
+		//VID_SetPaletteTX();
+		//Fog_EnableGFog();
+	}
+	//sceGuDrawArray(GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF, 0, 0, 0);
+
+
+	sceGuEnable(GU_CLIP_PLANES);
+	//sceGuEnable(GU_CULL_FACE);
+	sceGuEnable(GU_CULL_FACE);
+	//sceGuFrontFace(GU_CW);
+//	sceGuEnable(GU_DEPTH_TEST);
+//	sceGuDepthMask(0);
+	//sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
+	sceGuDisable(GU_SCISSOR_TEST);
+	//sceGuColor(0xffffffff);
+}
 /*
 =================
 R_DrawSkyChain

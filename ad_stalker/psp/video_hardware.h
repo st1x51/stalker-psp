@@ -244,7 +244,7 @@ extern	cvar_t	gl_keeptjunctions;
 extern	int			mirrortexturenum;	// quake texturenum, not gltexturenum
 extern	qboolean	mirror;
 extern	mplane_t	*mirror_plane;
-
+extern	int		skydome;
 extern	ScePspFMatrix4	r_world_matrix;
 
 void R_TranslatePlayerSkin (int playernum);
@@ -289,7 +289,7 @@ void Sky_NewMap (void);
 void Sky_Init (void);
 void R_DrawSkyBox (void);
 void R_ClearSkyBox (void);
-
+void R_DrawSkyDome (void);
 //-----------------------------------------------------
 void QMB_InitParticles (void);
 void QMB_ClearParticles (void);

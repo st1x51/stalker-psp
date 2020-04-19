@@ -235,6 +235,7 @@ typedef	enum
 	p_q3flame,
 	p_q3gunshot,
 	p_q3teleport,
+	p_smoke_green,
 	num_particletypes
 } part_type_t;
 typedef	byte	col_t[4];

@@ -47,6 +47,12 @@ namespace quake
 			std::size_t unclipped_vertex_count,
 			const struct glvert_s** clipped_vertices,
 			std::size_t* clipped_vertex_count);
+
+		void clip_col(
+			const struct glvert_s* unclipped_vertices,
+			std::size_t unclipped_vertex_count,
+			const struct glvert_s** clipped_vertices,
+			std::size_t* clipped_vertex_count);
 	}
 }
 

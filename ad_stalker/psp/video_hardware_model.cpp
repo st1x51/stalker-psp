@@ -227,7 +227,11 @@ void Mod_ClearAll (void)
             GL_UnloadTexture(skyimage[i]);
 		skyimage[i] = NULL;
 	}
-
+	if (skydome)
+	{
+		GL_UnloadTexture(skydome);
+		skydome = NULL;
+	}
 	//purge old lightmap textures
 	for (i=0; i<MAX_LIGHTMAPS; i++)
 	{

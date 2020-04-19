@@ -697,6 +697,16 @@ void CL_RelinkEntities (void)
             dl->color[1] = 1;
             dl->color[2] = 0.6;
         }
+		if (ent->effects & EF_GREEN)
+        {
+			dl = CL_AllocDlight (i);
+			VectorCopy (ent->origin,  dl->origin);
+			dl->radius = 100;
+			dl->die = cl.time + 0.001;
+            dl->color[0] = 0.13;
+            dl->color[1] = 2;
+            dl->color[2] = 0;
+        }
 #ifdef QUAKE2
 		if (ent->effects & EF_DARKLIGHT)
 		{			

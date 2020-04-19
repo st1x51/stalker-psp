@@ -178,6 +178,7 @@ typedef struct client_s
 #define	EF_BRIGHTLIGHT 			4
 #define	EF_DIMLIGHT 			8
 #define	EF_FIRELIGHT 			16
+#define EF_GREEN				32
 #ifdef QUAKE2
 #define EF_DARKLIGHT			16
 #define EF_DARKFIELD			32
