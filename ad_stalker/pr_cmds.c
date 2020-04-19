@@ -263,11 +263,19 @@ void PF_setsize (void)
 {
 	edict_t	*e;
 	float	*min, *max;
+	model_t	*mod;
 	
 	e = G_EDICT(OFS_PARM0);
 	min = G_VECTOR(OFS_PARM1);
 	max = G_VECTOR(OFS_PARM2);
 	SetMinMaxSize (e, min, max, false);
+
+	// FIX: edit models params also
+	mod = sv.models[ (int)e->v.modelindex];
+	if (mod) {
+		memcpy_vfpu(mod->mins, e->v.mins, sizeof(vec3_t));
+		memcpy_vfpu(mod->maxs, e->v.maxs, sizeof(vec3_t));
+	}
 }
 
 /*
