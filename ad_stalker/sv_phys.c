@@ -1756,7 +1756,7 @@ void SV_Physics (void)
 		|| ent->v.movetype == MOVETYPE_FLYMISSILE)
 			SV_Physics_Toss (ent);
 //st1x51 disabled atm
-/*
+
 		else if (ent->v.movetype == MOVETYPE_WALK)
 		{
 			if (!SV_RunThink (ent))
@@ -1766,7 +1766,7 @@ void SV_Physics (void)
 			SV_CheckStuck (ent);
 			SV_WalkMove (ent);
 		}
-*/
+
 		else
 			Sys_Error ("SV_Physics: bad movetype %i", (int)ent->v.movetype);		
 	
