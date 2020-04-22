@@ -935,6 +935,24 @@ void R_DrawHLModel(entity_t	*current)
 			
 			ALIAS_FUNC = (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME) ? &GL_Draw_HL_AliasChrome : &GL_Draw_HL_AliasFrame;
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+			for (int c = 0; c < mesh->numnorms; c++, lv += 3, ++norms, ++nbone)
+			{	
+				/**
+				 * Без понятия что именно делает функция Lighting,
+				 * но она сжирает почти 16FPS. Поэтому придется
+				 * ей пока посидеть в комментах.
+				 */
+                Lighting (&lv_tmp, *nbone, flags, (float *)norms);
+				
+				// FIX: move this check out of the inner loop
+				if (flags & STUDIO_NF_CHROME)
+				 	Chrome(g_chrome[(float (*)[3])lv - g_pvlightvalues], *nbone, (float *)norms );
+
+			    lv[0] = /*lv_tmp * */g_lightcolor[0];
+			    lv[1] = /*lv_tmp *  */g_lightcolor[1];
+			    lv[2] = /*lv_tmp *  */g_lightcolor[2];
+			}
 			
 			R_NormsHLUpdate(mesh, norms, nbone, flags, lv);
 
