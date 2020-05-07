@@ -686,7 +686,7 @@ void R_DrawHLModel(entity_t	*curent)
 
 	if (sequence->motiontype)
 		model.frame = sequence->numframes-1;
-	sceGuDisable(GU_FOG);
+	sceGuEnable(GU_FOG);
     sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
     sceGuShadeModel(GU_SMOOTH);
 
@@ -818,7 +818,7 @@ void R_DrawHLModel(entity_t	*curent)
     sceGumPopMatrix();
     sceGumUpdateMatrix();
     sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
-	sceGuEnable(GU_FOG);
+	sceGuDisable(GU_FOG);
 }
 
 /*
