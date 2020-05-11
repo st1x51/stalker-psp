@@ -1298,7 +1298,7 @@ void R_DrawSkyDome(void)
 		//sceGuDepthRange(0, 65535);
 
 		//VID_SetPaletteTX();
-		Fog_EnableGFog();
+		//Fog_EnableGFog();
 	}
 	//sceGuDrawArray(GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF, 0, 0, 0);
 
