@@ -976,19 +976,21 @@ void R_DrawBrushModel (entity_t *e)
 	currenttexture = -1;
 
 	clmodel = e->model;
-
+	VectorAdd (e->origin, clmodel->mins, mins);
+	VectorAdd (e->origin, clmodel->maxs, maxs);
 	if (e->angles[0] || e->angles[1] || e->angles[2])
 	{
+		vec3_t	center;
 		rotated = qtrue;
-		if (R_CullSphere(e->origin, clmodel->radius))
+		VectorAdd (mins, maxs, center);
+		VectorScale (center, 0.5, center);
+		if (R_CullSphere (center, clmodel->radius))
 			return;
 	}
 	else
 	{
 		rotated = qfalse;
-		VectorAdd (e->origin, clmodel->mins, mins);
-		VectorAdd (e->origin, clmodel->maxs, maxs);
-
+		
 	    if (R_CullBox (mins, maxs))
 		    return;
 	}
