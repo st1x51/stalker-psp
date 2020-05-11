@@ -69,6 +69,7 @@ cvar_t	noexit = {"noexit","0",false,true};
 
 cvar_t	show_fps = {"show_fps","1"};	// set for running times - muff
 cvar_t	show_bat = {"show_bat","0"};	// test
+cvar_t	cl_maxfps = {"cl_maxfps", "30", true};
 int			fps_count;
 
 #ifdef QUAKE2
@@ -227,6 +228,7 @@ void Host_InitLocal (void)
 	Cvar_RegisterVariable (&serverprofile);
 
 	Cvar_RegisterVariable (&show_fps); // muff fps
+	Cvar_RegisterVariable (&cl_maxfps);
 	Cvar_RegisterVariable (&fraglimit);
 	Cvar_RegisterVariable (&timelimit);
 	Cvar_RegisterVariable (&teamplay);
@@ -514,7 +516,8 @@ qboolean Host_FilterTime (float time)
 {
 	realtime += time;
 
-	if (!cls.timedemo && realtime - oldrealtime < 1.0/30.0)
+   if (cl_maxfps.value < 1) Cvar_SetValue("cl_maxfps", 30);
+   if (!cls.timedemo && realtime - oldrealtime < 1.0/cl_maxfps.value)
 		return false;		// framerate is too high
 
 	host_frametime = realtime - oldrealtime;
