@@ -797,9 +797,9 @@ void R_DrawHLModel(entity_t	*curent)
 				if (flags & STUDIO_NF_CHROME)
 				 	Chrome(g_chrome[(float (*)[3])lv - g_pvlightvalues], *nbone, (float *)norms );
 
-			    lv[0] = /*lv_tmp * */g_lightcolor[0];
-			    lv[1] = /*lv_tmp *  */g_lightcolor[1];
-			    lv[2] = /*lv_tmp *  */g_lightcolor[2];
+			    lv[0] = g_lightcolor[0];
+			    lv[1] = g_lightcolor[1];
+			    lv[2] = g_lightcolor[2];
 			}
 			*/
 			if (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME)
