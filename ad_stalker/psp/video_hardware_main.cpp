@@ -111,6 +111,7 @@ cvar_t	r_tex_format       = {"r_tex_format",       "4",   qtrue};
 cvar_t	r_tex_res          = {"r_tex_res",          "0",   qtrue};
 cvar_t	r_particles_simple = {"r_particles_simple", "0",   qtrue};
 cvar_t	gl_keeptjunctions  = {"gl_keeptjunctions",  "0"         };
+cvar_t	r_hl_render_dist   = {"r_hl_render_dist",   "800", qtrue};		// dist to render HL models
 
 
 cvar_t	r_showtris            = {"r_showtris",                "0"};
@@ -1647,11 +1648,15 @@ R_DrawEntitiesOnList
 */
 void R_DrawEntitiesOnList (void)
 {
-	int		i;
 
 	if (!r_drawentities.value)
 		return;
 
+	int		i;
+	bool 	clipping;
+	vec3_t	dist;
+	vec3_t	mins, maxs;
+	vec3_t	center;
 	// draw sprites seperately, because of alpha blending
 	for (i=0 ; i<cl_numvisedicts ; i++)
 	{
@@ -1667,14 +1672,32 @@ void R_DrawEntitiesOnList (void)
 			continue;
 		}
 
+		
+		/**
+		 * Check to distance between current entity and camera view
+		 */
+		VectorSubtract(r_refdef.vieworg, currententity->origin, dist);
+		// clipping entities,will be added later
+		/*
+		clipping = quake::clipping::is_clipping_entity_bbox_required(currententity);
+		if (clipping) {
+			continue;
+		}
+		*/
+		VectorAdd (currententity->origin, currententity->model->mins, mins);
+		VectorAdd (currententity->origin, currententity->model->maxs, maxs);
 		switch (currententity->model->type)
 		{
 		case mod_alias:
-
 			R_DrawAliasModel (currententity);
 			break;
 		case mod_halflife:
-			R_DrawHLModel (currententity);
+			VectorAdd (mins, maxs, center);
+			VectorScale (center, 0.5, center);
+			if (R_CullSphere (center, currententity->model->radius))
+				continue;
+			else
+				R_DrawHLModel (currententity);
 			break;
 
 		case mod_brush:

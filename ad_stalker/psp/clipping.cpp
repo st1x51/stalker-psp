@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CLIP_RIGHT			1
 #define CLIP_BOTTOM			1
 #define CLIP_TOP			1
-#define CLIP_NEAR			0
-#define CLIP_FAR			0
+#define CLIP_NEAR			1
+#define CLIP_FAR			1
 
 #include "clipping.hpp"
 
@@ -268,6 +268,81 @@ namespace quake
 
 			// This polygon is all inside the frustum.
 			return false;
+		}
+
+		bool is_clipping_entity_position_required(const struct entity_s* entity)
+		{
+			float out1, out2, out3, out4;
+			
+			__asm__ volatile (
+				"ulv.q	C610, %4\n"			// Load vertex into register
+				"vone.s	S613\n"				// Now set the 4th entry to be 1 as that is just random
+				"vdot.q	S620, C700, C610\n"	// s620 = vertex->xyx . frustrum[0]
+				"vdot.q	S621, C710, C610\n"	// s621 = vertex->xyx . frustrum[1]
+				"vdot.q	S622, C720, C610\n"	// s622 = vertex->xyx . frustrum[2]
+				"vdot.q	S623, C730, C610\n"	// s623 = vertex->xyx . frustrum[3]
+				"mfv	%0, S620\n"			// out1 = s620
+				"mfv	%1, S621\n"			// out2 = s621
+				"mfv	%2, S622\n"			// out3 = s622
+				"mfv	%3, S623\n"			// out4 = s623
+				: "=r"(out1), "=r"(out2), "=r"(out3), "=r"(out4) : "m"(*entity->origin)
+			);
+		
+			// Should be possible to move this within the VFPU code and just check one value here
+			if ((out1 < 0.0f) || (out2 < 0.0f) || (out3 < 0.0f) || (out4 < 0.0f))
+			{
+				return true;
+			}
+
+			// This entity is inside the frustum.
+			return false;
+		}
+
+		bool is_clipping_entity_bbox_required(const struct entity_s* entity)
+		{
+			float out1, out2, out3, out4;
+			vec3_t min, max, origin, aabb[8];
+			unsigned char bit_result = 255;
+
+			memcpy_vfpu(min, entity->model->mins, sizeof(vec3_t));
+			memcpy_vfpu(max, entity->model->maxs, sizeof(vec3_t));
+			memcpy_vfpu(origin, (void*)entity->origin, sizeof(vec3_t));
+
+			aabb[0][0] = origin[0] + max[0]; aabb[0][1] = origin[1] + max[1]; aabb[0][2] = origin[2] + max[2]; //  x,  y,  z
+			aabb[1][0] = origin[0] + min[0]; aabb[1][1] = origin[1] + max[1]; aabb[1][2] = origin[2] + max[2]; // -x,  y,  z
+			aabb[2][0] = origin[0] + max[0]; aabb[2][1] = origin[1] + max[1]; aabb[2][2] = origin[2] + min[2]; //  x,  y, -z
+			aabb[3][0] = origin[0] + min[0]; aabb[3][1] = origin[1] + max[1]; aabb[3][2] = origin[2] + min[2]; // -x,  y, -z
+			aabb[4][0] = origin[0] + max[0]; aabb[4][1] = origin[1] + min[1]; aabb[4][2] = origin[2] + max[2]; //  x, -y,  z
+			aabb[5][0] = origin[0] + min[0]; aabb[5][1] = origin[1] + min[1]; aabb[5][2] = origin[2] + max[2]; // -x, -y,  z
+			aabb[6][0] = origin[0] + min[0]; aabb[6][1] = origin[1] + min[1]; aabb[6][2] = origin[2] + min[2]; // -x, -y, -z
+			aabb[7][0] = origin[0] + max[0]; aabb[7][1] = origin[1] + min[1]; aabb[7][2] = origin[2] + min[2]; //  x, -y, -z
+
+			// hitbox (cube) vertex count
+			for (int i = 0; i < 8; ++i) {
+
+				__asm__ volatile (
+					"ulv.q	C610, %4\n"			// Load vertex into register
+					"vone.s	S613\n"				// Now set the 4th entry to be 1 as that is just random
+					"vdot.q	S620, C700, C610\n"	// s620 = vertex->xyx . frustrum[0]
+					"vdot.q	S621, C710, C610\n"	// s621 = vertex->xyx . frustrum[1]
+					"vdot.q	S622, C720, C610\n"	// s622 = vertex->xyx . frustrum[2]
+					"vdot.q	S623, C730, C610\n"	// s623 = vertex->xyx . frustrum[3]
+					"mfv	%0, S620\n"			// out1 = s620
+					"mfv	%1, S621\n"			// out2 = s621
+					"mfv	%2, S622\n"			// out3 = s622
+					"mfv	%3, S623\n"			// out4 = s623
+					: "=r"(out1), "=r"(out2), "=r"(out3), "=r"(out4) : "m"(*aabb[i])
+				);
+			
+				// Should be possible to move this within the VFPU code and just check one value here
+				if ((out1 < 0.0f) || (out2 < 0.0f) || (out3 < 0.0f) || (out4 < 0.0f))
+				{
+					bit_result = bit_result >> 1;
+				}
+			}
+
+			// This entity is inside the frustum.
+			return bit_result == 0;
 		}
 
 		static inline glvert_t calculate_intersection(const plane_type& plane, const glvert_t& v1, const glvert_t& v2)

@@ -36,7 +36,13 @@ typedef	int	fixed16_t;
 #ifndef M_PI
 #define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
 #endif
-
+#define sqrtf vfpu_sqrtf
+#define sqrt vfpu_sqrtf
+#define fabs vfpu_fabsf
+//#define pow vfpu_powf
+#define fmin vfpu_fminf
+#define sinf vfpu_sinf
+#define cos vfpu_cosf
 #define RAD2DEG( x )	((float)(x) * (float)(180.f / M_PI))
 #define DEG2RAD( x )	((float)(x) * (float)(M_PI / 180.f))
 #define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5))
