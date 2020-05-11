@@ -741,7 +741,7 @@ void R_DrawHLModel(entity_t	*curent)
 	int numLods;
 	//lod
     HL_SetupBones(&model);	/* Setup the bones */
-    SetupLighting(&model);	/* Setup the light */
+   //SetupLighting(&model);	/* Setup the light */
 
     g_smodels_total++; // render data cache cookie
 
@@ -789,7 +789,7 @@ void R_DrawHLModel(entity_t	*curent)
             float			tex_h = 1.0f / model.textures[skins[mesh->skinindex]].h;
             int             flags = model.textures[skins[mesh->skinindex]].flags;
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-			
+			/*
 		    for (int c = 0; c < mesh->numnorms; c++, lv += 3, norms++, nbone++)
 			{
                 Lighting (&lv_tmp, *nbone, flags, (float *)norms);
@@ -801,7 +801,7 @@ void R_DrawHLModel(entity_t	*curent)
 			    lv[1] = /*lv_tmp *  */g_lightcolor[1];
 			    lv[2] = /*lv_tmp *  */g_lightcolor[2];
 			}
-			
+			*/
 			if (model.textures[skins[mesh->skinindex]].flags & STUDIO_NF_CHROME)
 		    {
    			    GL_Bind(model.textures[skins[mesh->skinindex]].i);
@@ -829,6 +829,18 @@ void R_DrawHLModel(entity_t	*curent)
 void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float tex_h, float *lv)
 {
     int count = 0;
+	float       r,g,b;
+	
+	r = lightcolor[0];
+	g = lightcolor[1];
+	b = lightcolor[2];
+
+	 if(r > 1)
+		r = 1;
+	 if(g > 1)
+		g = 1;
+	 if(b > 1)
+		b = 1;
     while (1)
 	{
         count = *order++;
@@ -868,25 +880,11 @@ void GL_Draw_HL_AliasFrame(short *order, vec3_t *transformed, float tex_w, float
 			out[vertex_index].u = order[2] * tex_w;
 			out[vertex_index].v = order[3] * tex_h;
 			order += 4;
-
-			lv = g_pvlightvalues[order[1]];
-			//color clamp
-			
-			for(int i = 0; i < 3; i++)
-			{
-				if(lv[i] > 1)
-				   lv[i] = 1;
-
-				if(lv[i] < 0)
-				   lv[i] = 0;
-            }
 			
 			out[vertex_index].x = verts[0];
             out[vertex_index].y = verts[1];
             out[vertex_index].z = verts[2];
-            out[vertex_index].color = GU_COLOR(lv[0], lv[1], lv[2], 1.0f);
-			
-			
+            out[vertex_index].color = GU_COLOR(r, g, b, 1.0f);
 		}
         if(r_showtris.value)
 		{
