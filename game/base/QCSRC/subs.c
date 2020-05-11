@@ -125,3 +125,18 @@ void(float normal) SUB_AttackFinished =
 {
 	self.attack_finished = time + normal;
 };
+void(string text)format_text=
+{
+	float stringsteps = 16;
+	string teststring;
+	lengh = strlen(text);
+	currentlengh = 0;
+	for(float i = 0;currentlengh <= lengh;i++)
+	{
+		teststring = substring(text,currentlengh,40);
+		currentlengh += 40;
+		answer[i] = strzone(teststring);
+		stringsteps += 16;
+		ShowString(s[i],answer[i],90,stringsteps,8);
+	}
+}

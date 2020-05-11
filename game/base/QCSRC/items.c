@@ -231,6 +231,109 @@ void()item_battery=
 	self.think = battery_think;
 	self.nextthink = time + 1;
 }
+
+void() hurt_on=
+{
+	self.solid = SOLID_TRIGGER;
+	self.effects = 0;
+	self.think = gaz_think;
+	self.nextthink = time + 0.5;
+};
+
+void() hurt_touch=
+{
+	if(other.classname == "bolt")
+	{
+		self.effects = 32;
+		sound (self, CHAN_WEAPON, "anomaly/buzz_hit.wav", 1, ATTN_STATIC);
+	}
+	if (other.takedamage)
+	{
+		self.solid = SOLID_NOT;
+		T_Damage (other, self, self, 20);
+		sound (self, CHAN_WEAPON, "anomaly/buzz_hit.wav", 1, ATTN_STATIC);
+		self.think = hurt_on;
+		self.nextthink = time + 0.5;
+	}
+
+	return;
+};
+vector oldorg;
+void()gaz_think=
+{
+	if(self.frame >=7)
+	{
+		self.frame = 0;
+		addparticle(p_smoke_green,self.origin + [random(-64,64),random (-64,64),0],1,10,2,0,self.origin + [0,0,10]);
+		setorigin(self,oldorg + [random(-64,64),random(-64,64),0]);
+	}
+	self.nextthink = time + 0.1;
+	self.frame +=1;
+	self.think = gaz_think;
+}
+void()item_gaz=
+{
+	entity gaz[4];
+	gaz[0] = spawn();
+	gaz[1] = spawn();
+	gaz[2] = spawn();
+	gaz[3] = spawn();
+	precache_model("sprites/gaz.spr32");
+	precache_sound("anomaly/buzz_idle.wav");
+	precache_sound("anomaly/buzz_hit.wav");
+	setmodel(self,"sprites/gaz.spr32");
+	setmodel(gaz[0],"sprites/gaz.spr32");
+	setmodel(gaz[1],"sprites/gaz.spr32");
+	setmodel(gaz[2],"sprites/gaz.spr32");
+	setmodel(gaz[3],"sprites/gaz.spr32");
+	self.solid = SOLID_TRIGGER;
+	gaz[0].solid = SOLID_TRIGGER;
+	gaz[1].solid = SOLID_TRIGGER;
+	gaz[2].solid = SOLID_TRIGGER;
+	gaz[3].solid = SOLID_TRIGGER;
+	self.movetype = MOVETYPE_NONE;	
+	self.velocity = '0 0 0';
+	gaz[0].angles = '90 0 0';
+	gaz[1].angles = '90 0 0';
+	gaz[2].angles = '90 0 0';
+	gaz[3].angles = '90 0 0';
+	self.netname = "gaz";
+	self.angles = '90 0 0';
+	setsize (self, '-16 -16 -8', '16 16 8');
+	setsize (gaz[0], '-16 -16 -8', '16 16 8');
+	setsize (gaz[1], '-16 -16 -8', '16 16 8');
+	setsize (gaz[2], '-16 -16 -8', '16 16 8');
+	setsize (gaz[3], '-16 -16 -8', '16 16 8');
+	self.rendermode = 1;
+	self.rendercolor = '150 240 0';
+	gaz[0].rendermode = 1;
+	gaz[0].rendercolor = '150 240 0';
+	gaz[1].rendermode = 1;
+	gaz[1].rendercolor = '150 240 0';
+	gaz[2].rendermode = 1;
+	gaz[2].rendercolor = '150 240 0';
+	gaz[3].rendermode = 1;
+	gaz[3].rendercolor = '150 240 0';
+	gaz[0].touch = hurt_touch;
+	gaz[1].touch = hurt_touch;
+	gaz[2].touch = hurt_touch;
+	gaz[3].touch = hurt_touch;
+	setorigin(gaz[0],self.origin + [random(-64,64),random(-64,64),0]);
+	setorigin(gaz[1],self.origin + [random(-64,64),random(-64,64),0]);
+	setorigin(gaz[2],self.origin + [random(-64,64),random(-64,64),0]);
+	setorigin(gaz[3],self.origin + [random(-64,64),random(-64,64),0]);
+	gaz[0].think = gaz_think;
+	gaz[1].think = gaz_think;
+	gaz[2].think = gaz_think;
+	gaz[3].think = gaz_think;
+	gaz[0].nextthink = time + random(0.5,1);
+	gaz[1].nextthink = time + random(0.5,1);
+	gaz[2].nextthink = time + random(0.5,1);
+	gaz[3].nextthink = time + random(0.5,1);
+	self.effects = 32;
+	oldorg = self.origin;
+	ambientsound (self.origin, "anomaly/buzz_idle.wav", 1, ATTN_STATIC);
+}
 void()AnimFire=
 {
 	if(self.frame == 13)

@@ -51,21 +51,6 @@ void()tolyan_dead =
 	self.think = tolyan_dead;
 	self.nextthink = time + 0.1;
 }
-void(string text)format_text=
-{
-	float stringsteps = 16;
-	string teststring;
-	lengh = strlen(text);
-	currentlengh = 0;
-	for(float i = 0;currentlengh <= lengh;i++)
-	{
-		teststring = substring(text,currentlengh,40);
-		currentlengh += 40;
-		answer[i] = strzone(teststring);
-		stringsteps += 16;
-		ShowString(s[i],answer[i],90,stringsteps,8);
-	}
-}
 
 void() dialog_choice_tolyan=
 {

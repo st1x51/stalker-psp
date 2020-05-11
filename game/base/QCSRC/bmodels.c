@@ -10,13 +10,15 @@ void() func_wall_use =
 {	
 	self.frame = 1 - self.frame;
 };
+.vector m_vecTestPos;
 void()lod_think=
 {
 	vector len;
 	entity pl;
 	pl = find(world,classname,"player");
-	len = pl.origin - ((self.mins+self.maxs)*0.5);
-	len_z = 0;
+	//len = pl.origin - ((self.mins+self.maxs)*0.5);
+	len = pl.origin - self.m_vecTestPos;
+	len += self.origin_z;
 	if(rint(vlen(len)) < (cvar("r_loddist")))
 	{
 		self.effects = 0;
@@ -35,6 +37,9 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	self.use = func_wall_use;
 	setmodel (self, self.model);
+	self.m_vecTestPos[0] = self.absmin[0] + (0.5 * (self.absmax[0] - self.absmin[0]));
+	self.m_vecTestPos[1] = self.absmin[1] + (0.5 * (self.absmax[1] - self.absmin[1]));
+	self.m_vecTestPos[2] = self.absmin[2] + (0.5 * (self.absmax[2] - self.absmin[2]));
 	lod_think();
 };
 float MISC_MODEL_ANIMATION = 1;

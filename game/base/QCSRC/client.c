@@ -17,7 +17,10 @@ void() GetSinglePlayerParameters =
 	if(cvar("saved1") == 1)
 		readparms = fopen ("data/sp_params.bin", FILE_READ);	
 	if(cvar("saved1") == 0)
+	{
 		readparms = fopen ("data/sp_newparams.bin", FILE_READ);
+		ScreeFade(5,2,FFADE_IN,0,0,0,255);
+	}
 
 	if (readparms < 0)//if file not found
 	{
@@ -667,7 +670,8 @@ void()detector=
  {
 	if (self.deadflag)
 		return;
-	 if(self.velocity == '0 0 0' && self.state == RUNNING)
+	//fixme: you are still in running state,when player is sliding  
+	 if((vlen(self.velocity) < 15) && self.state == RUNNING)
 	 {
 		self.sprint_time = time;
 		self.sprinting = FALSE;   
