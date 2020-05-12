@@ -342,7 +342,7 @@ void M_Main_Draw (void)
 	M_PrintWhite (vid.width - 128, vid.height - 152, "SINGLE");
 	
 	Draw_Fill (vid.width - w, vid.height-138, 100, 16, GU_RGBA(255, 215, 0, 50));
-	M_PrintWhite (vid.width - 128, vid.height-134, "MULTYPLAYER");
+	M_PrintWhite (vid.width - 128, vid.height-134, "MULTIPLAYER");
 	
 	Draw_Fill (vid.width - w, vid.height-120, 100, 16, GU_RGBA(255, 215, 0, 50));
 	M_PrintWhite (vid.width - 128, vid.height-116, "SETTINGS");
@@ -2128,7 +2128,7 @@ void M_Menu_Help_f (void)
 
 void M_Help_Draw (void)
 {
-	M_DrawPic (0, 0, Draw_CachePic ( va("gfx/help%i.lmp", help_page)) );
+
 }
 
 
