@@ -923,7 +923,7 @@ void R_DrawHLModel(entity_t	*current)
 		{
             VectorTransform(verts[v], transform_matrix[bone[v]], transformed[v]);
 		}
-		
+		c_alias_polys += amodel->numverts;
  		lv = (float *)g_pvlightvalues;
         for(m = 0; m < amodel->nummesh; ++m)
         {

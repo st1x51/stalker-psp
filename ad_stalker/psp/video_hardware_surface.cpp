@@ -1029,7 +1029,7 @@ void R_DrawBrushModel (entity_t *e)
 	}
 
 	sceGumPushMatrix();
-
+	sceGuEnable(GU_FOG); //test
 	//Crow_bar half_life render.
 	if (ISADDITIVE(e))
 	{
@@ -1149,6 +1149,7 @@ void R_DrawBrushModel (entity_t *e)
 
 	sceGumPopMatrix();
 	sceGumUpdateMatrix();
+	sceGuDisable(GU_FOG); //test
 }
 
 /*

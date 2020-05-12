@@ -1041,8 +1041,8 @@ void R_DrawSkyBox (void)
 {
     int		i;
 	
-	Fog_DisableGFog();     //setup for Sky
-	Fog_SetColorForSkyS(); //setup for Sky
+	//Fog_DisableGFog();     //setup for Sky
+	//Fog_SetColorForSkyS(); //setup for Sky
 
 	//sceGuDepthRange(32767, 65535); //not used
 
@@ -1129,7 +1129,7 @@ void R_DrawSkyBox (void)
         }
     }
     //sceGuDepthRange(0, 65535);
-	Fog_SetColorForSkyE(); //setup for Sky
+	//Fog_SetColorForSkyE(); //setup for Sky
 	Fog_EnableGFog(); //setup for Sky
 }
 
@@ -1220,7 +1220,8 @@ void R_DrawSkyDome(void)
 	
 	int		i, j;
 	//float   r, g, b, a;
-
+	//Fog_DisableGFog();
+	//Fog_SetColorForSkyE();
 	sceGuDisable(GU_CLIP_PLANES);
 
 	sceGuDisable(GU_CULL_FACE);
@@ -1298,11 +1299,12 @@ void R_DrawSkyDome(void)
 		//sceGuDepthRange(0, 65535);
 
 		//VID_SetPaletteTX();
-		Fog_EnableGFog();
+		//Fog_SetColorForSkyS();
+		
 	}
 	//sceGuDrawArray(GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF, 0, 0, 0);
 
-
+	Fog_EnableGFog();
 	sceGuEnable(GU_CLIP_PLANES);
 	//sceGuEnable(GU_CULL_FACE);
 	sceGuEnable(GU_CULL_FACE);
