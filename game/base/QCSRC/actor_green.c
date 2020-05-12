@@ -85,26 +85,44 @@ void()CheckReaction=
 		{
 			if(head.alifestate == GUITAR)
 			{
-				rs=floor(random()*3);
-				if(rs==0)
-					musicreaction = "reaction/music/reaction_music_1.wav";
-				if(rs==1)
-					musicreaction = "reaction/music/reaction_music_2.wav";
-				if(rs==2)
-					musicreaction = "reaction/music/reaction_music_3.wav";
+				rs = floor(random()*3);
+				switch(rs)
+				{
+					case 0:
+						musicreaction = "reaction/music/reaction_music_1.wav";
+					break;
+					case 1:
+						musicreaction = "reaction/music/reaction_music_2.wav";
+					break;
+					case 2:
+						musicreaction = "reaction/music/reaction_music_3.wav";
+					break;
+					default:
+						musicreaction = "reaction/music/reaction_music_3.wav"; // add another
+					break;
+				}
 				self.alifestate = SITTING;
 				if(r < 0.3)
 					sound (self, CHAN_WEAPON, musicreaction, 1, ATTN_NORM);
 			}
 			if( head.alifestate == JOKE )
 			{
-				rs=floor(random()*3);
-				if(rs==0)
-					stringreaction = "reaction/joke/reaction_joke_1.wav";
-				if(rs==1)
-					stringreaction = "reaction/joke/reaction_joke_2.wav";
-				if(rs==2)
-					stringreaction = "reaction/joke/reaction_joke_3.wav";
+				rs = floor(random()*3);
+				switch(rs)
+				{
+					case 0:
+						stringreaction = "reaction/joke/reaction_joke_1.wav";
+					break;
+					case 1:
+						stringreaction = "reaction/joke/reaction_joke_2.wav";
+					break;
+					case 2:
+						stringreaction = "reaction/joke/reaction_joke_3.wav";
+					break;
+					default:
+						stringreaction = "reaction/joke/reaction_joke_3.wav"; // add another
+					break;
+				}
 				self.alifestate = SITTING;
 				if(r < 0.3)
 					sound (self, CHAN_WEAPON, stringreaction, 1, ATTN_NORM);
@@ -146,12 +164,21 @@ void()random_actions=
 		//self.sequence = 0;
 		//self.frame = 0;
 		r=floor(random()*3);
-		if(r==0)
-			stringmusic = "guitar_9.wav";
-		if(r==1)
-			stringmusic = "guitar_10.wav";
-		if(r==2)
-			stringmusic = "guitar_11.wav";
+		switch(r)
+		{
+			case 0:
+				stringmusic = "guitar_9.wav";
+			break;
+			case 1:
+				stringmusic = "guitar_10.wav";
+			break;
+			case 2:
+				stringmusic = "guitar_11.wav";
+			break;
+			default:
+				stringmusic = "guitar_11.wav"; // add another
+			break;
+		}
 		self.alifestate = GUITAR;
 		self.sequence = 5;
 		self.frame = 0;
@@ -164,12 +191,21 @@ void()random_actions=
 		self.sequence = 3;
 		self.frame = 0;
 		r=floor(random()*3);
-		if(r==0)
-			stringjoke = "joke_1.wav";
-		if(r==1)
-			stringjoke = "joke_2.wav";
-		if(r==2)
-			stringjoke = "joke_3.wav";
+		switch(r)
+		{
+			case 0:
+				stringjoke = "joke_1.wav";
+			break;
+			case 1:
+				stringjoke = "joke_2.wav";
+			break;
+			case 2:
+				stringjoke = "joke_3.wav";
+			break;
+			default:
+				stringjoke = "joke_3.wav";// add another
+			break;
+		}
 		sound (self, CHAN_WEAPON, stringjoke, 1, ATTN_NORM);
 		self.alifestate = JOKE;
 		green_kurit();
