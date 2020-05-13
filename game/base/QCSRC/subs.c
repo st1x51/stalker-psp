@@ -140,3 +140,13 @@ void(string text)format_text=
 		ShowString(s[i],answer[i],90,stringsteps,8);
 	}
 }
+void(float seq,float fr,void() func,optional float t)SUB_Anim=
+{
+	self.sequence = seq;
+	self.frame = fr;
+	self.think = func;
+	if(!t)
+		self.nextthink = time + 0.01;
+	else
+		self.nextthink = time + t;
+}
