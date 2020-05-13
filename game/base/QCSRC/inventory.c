@@ -255,7 +255,92 @@ void()MoveInventoryLeft=
 		Item_Descripton_ON();
 	}		
 }
-
+void()MoveInventoryDown=
+{
+	if(inventory)
+	{			
+		if(currentslot == 9)
+		{
+			self.cursor_x = 36;
+			self.cursor_y = 66;
+			currentslot = 1;
+			goto show;
+			return;
+		}
+		if(currentslot == 10)
+		{
+			self.cursor_x = 68;
+			self.cursor_y = 66;
+			currentslot = 2;
+			goto show;
+			return;
+		}
+		if(currentslot == 11)
+		{
+			self.cursor_x = 100;
+			self.cursor_y = 66;
+			currentslot = 3;
+			goto show;
+			return;
+		}
+		if(currentslot == 12)
+		{
+			self.cursor_x = 132;
+			self.cursor_y = 66;
+			currentslot = 4;
+			goto show;
+			return;
+		}
+		self.cursor_y += 32; //так надо
+		currentslot += 4;
+		show:
+		ShowLmp("cursor","gfx/cursor",self.cursor_x,self.cursor_y);
+		Item_Descripton_ON();
+	}	
+}
+void()MoveInventoryUp=
+{
+	if(inventory)
+	{			
+		if(currentslot == 1)
+		{
+			self.cursor_x = 36;
+			self.cursor_y = 130;
+			currentslot = 9;
+			goto show;
+			return;
+		}
+		if(currentslot == 2)
+		{
+			self.cursor_x = 68;
+			self.cursor_y = 130;
+			currentslot = 10;
+			goto show;
+			return;
+		}
+		if(currentslot == 3)
+		{
+			self.cursor_x = 100;
+			self.cursor_y = 130;
+			currentslot = 11;
+			goto show;
+			return;
+		}
+		if(currentslot == 4)
+		{
+			self.cursor_x = 132;
+			self.cursor_y = 130;
+			currentslot = 12;
+			goto show;
+			return;
+		}
+		self.cursor_y -= 32; //так надо
+		currentslot -= 4;
+		show:
+		ShowLmp("cursor","gfx/cursor",self.cursor_x,self.cursor_y);
+		Item_Descripton_ON();
+	}	
+}
 void()UseInventoryItems=
 {
 	if(inventory)

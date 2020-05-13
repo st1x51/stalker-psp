@@ -66,6 +66,14 @@ void() CheckImpulses =
 		UseInventoryItems();
 		//DropItem();
    }
+   if(self.impulse == 25)
+   {
+	   MoveInventoryDown();
+   }
+   if(self.impulse == 26)
+	{
+		MoveInventoryUp();
+	}
    if(self.impulse == 18) //use items here
    {
 		DropItem();
