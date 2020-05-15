@@ -630,7 +630,45 @@ void Draw_String_Rus (int x, int y, char *str)
 	}
 	
 }
+/*
+=============
+Draw_StretchPic
+=============
+*/
+void Draw_StretchPic(int x, int y, int w, int h, qpic_t *pic) 
+{
+	glpic_t			*gl;
+	gl = (glpic_t *)pic->data;
+	GL_Bind(gl->index);
 
+	struct vertex
+	{
+		short			u, v;
+		short			x, y, z;
+	};
+
+	vertex* const vertices = static_cast<vertex*>(sceGuGetMemory(sizeof(vertex) * 2));
+	vertices[0].u = 0;
+	vertices[0].v = 0;
+	vertices[0].x = x;
+	vertices[0].y = x;
+	vertices[0].z = 0;
+	const gltexture_t& glt = gltextures[gl->index];
+	if (gltextures[gl->index].islmp)
+	{
+		vertices[1].u	= glt.original_width;
+		vertices[1].v	= glt.original_height;
+	}
+	else
+	{
+		vertices[1].u 	= glt.width;
+		vertices[1].v 	= glt.height;
+	}
+	vertices[1].x = x + w;
+	vertices[1].y = y + h;
+	vertices[1].z = 0;
+	sceGuDrawArray(GU_SPRITES, GU_TEXTURE_16BIT | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
+}
 
 /*
 =============
